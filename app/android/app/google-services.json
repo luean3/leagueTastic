@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "623072844467",
+    "project_id": "leaguetastic-ffhs",
+    "storage_bucket": "leaguetastic-ffhs.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:623072844467:android:5c5a392a5466dd6757eec6",
+        "android_client_info": {
+          "package_name": "ch.ffhs.leaguetastic"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCYnMDjC6EbP9qP978pY1Edm2cQKnbHktE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -35,6 +35,9 @@ dependencies:
   firebase_core: ^4.7.0
   url_launcher: ^6.3.0
   app_links: ^7.0.0
+  flutter_map: ^6.1.0        # map engine
+  latlong2: ^0.9.1           # required by flutter_map for coordinates
+  flutter_polyline_points: ^2.0.0 # decode polyline
 
 
 dev_dependencies:

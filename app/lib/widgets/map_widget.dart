@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cache/flutter_map_cache.dart';
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 class StravaMapWidget extends StatefulWidget {
   final String encodedPolyline;
 
-  const StravaMapWidget({Key? key, required this.encodedPolyline}) : super(key: key);
+  const StravaMapWidget({super.key, required this.encodedPolyline});
 
   @override
   State<StravaMapWidget> createState() => _StravaMapWidgetState();
@@ -70,7 +72,10 @@ class _StravaMapWidgetState extends State<StravaMapWidget> {
         // The OpenStreetMap Map Tiles
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.yourschoolproject.app', // Best practice for OSM
+          userAgentPackageName: 'com.leagueTastic.app',
+          tileProvider: CachedTileProvider(
+            maxStale: const Duration(days: 30), store: MemCacheStore(), // Keep tiles for 30 days
+          ),
         ),
         // The Strava Route Line
         PolylineLayer(

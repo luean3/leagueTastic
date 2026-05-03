@@ -1,11 +1,12 @@
 import {onCall, onRequest} from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import fetch from "node-fetch";
-
+import { defineSecret } from "firebase-functions/params";
 admin.initializeApp();
 
-const STRAVA_CLIENT_ID = "";
-const STRAVA_CLIENT_SECRET = "";
+
+const STRAVA_CLIENT_ID = defineSecret("STRAVA_CLIENT_ID");
+const STRAVA_CLIENT_SECRET = defineSecret("STRAVA_CLIENT_SECRET");
 
 // ===============================
 // 🔥 HELPER: Refresh Token
@@ -17,8 +18,8 @@ async function refreshAccessToken(uid: string, refreshToken: string) {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            client_id: STRAVA_CLIENT_ID,
-            client_secret: STRAVA_CLIENT_SECRET,
+            client_id: STRAVA_CLIENT_ID.value(),
+            client_secret: STRAVA_CLIENT_SECRET.value(),
             grant_type: "refresh_token",
             refresh_token: refreshToken,
         }),
@@ -146,8 +147,8 @@ export const stravaCallback = onRequest(async (req, res) => {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                client_id: STRAVA_CLIENT_ID,
-                client_secret: STRAVA_CLIENT_SECRET,
+                client_id: STRAVA_CLIENT_ID.value(),
+                client_secret: STRAVA_CLIENT_SECRET.value(),
                 code,
                 grant_type: "authorization_code",
             }),
@@ -271,5 +272,153 @@ export const fetchSegmentEfforts = onCall(async (request) => {
     return {
         count: efforts.length,
         efforts,
+    };
+});
+
+export const stravaWebhook = onRequest(async (req, res) => {
+
+    // Verification Challenge
+    if (req.method === "GET") {
+        res.status(200).json({
+            "hub.challenge": req.query["hub.challenge"],
+        });
+        return;
+    }
+
+    // Webhook Event
+    const body = req.body;
+
+    if (
+        body.object_type !== "activity" ||
+        body.aspect_type !== "create"
+    ) {
+        res.status(200).send("ignored");
+        return;
+    }
+
+    const activityId = body.object_id;
+    const athleteId = body.owner_id;
+
+    // User finden
+    const userSnap = await admin.firestore()
+        .collection("users")
+        .where("athleteId", "==", athleteId)
+        .limit(1)
+        .get();
+
+    if (userSnap.empty) {
+        res.status(404).send("user not found");
+        return;
+    }
+
+    const userDoc = userSnap.docs[0];
+
+    let {
+        accessToken,
+        refreshToken,
+    } = userDoc.data();
+
+    // Aktivität laden
+    let activityRes = await fetch(
+        `https://www.strava.com/api/v3/activities/${activityId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        }
+    );
+
+    // Token refresh
+    if (activityRes.status === 401) {
+
+        accessToken = await refreshAccessToken(
+            userDoc.id,
+            refreshToken
+        );
+
+        activityRes = await fetch(
+            `https://www.strava.com/api/v3/activities/${activityId}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            }
+        );
+    }
+
+    if (!activityRes.ok) {
+        res.status(500).send(await activityRes.text());
+        return;
+    }
+
+    const activity: any = await activityRes.json();
+
+    const batch = admin.firestore().batch();
+
+    const segmentEfforts = activity.segment_efforts ?? [];
+    segmentEfforts.forEach((s: any) => {
+        const ref = admin.firestore()
+            .collection("segmentEfforts")
+            .doc(`${activity.id}_${s.segment.id}`)
+
+        batch.set(ref, {
+            userId: userDoc.id,
+            segmentId: s.segment.id,
+            activityId: activity.id,
+            elapsedTime: s.elapsed_time,
+            movingTime: s.moving_time,
+            startDate: activity.start_date,
+            distance: s.distance,
+        });
+    });
+
+    await batch.commit();
+
+    res.status(200).send("ok");
+});
+
+export const getSegmentLeaderboard = onCall(async (request) => {
+
+    const uid = request.auth?.uid;
+    if (!uid) {
+        throw new Error("Unauthorized");
+    }
+
+    const { segmentId, from, to, limit } = request.data;
+
+    if (!segmentId) {
+        throw new Error("Missing segmentId");
+    }
+
+    const fromDate = from ? new Date(from) : new Date(0);
+    const toDate = to ? new Date(to) : new Date();
+
+    const snap = await admin.firestore()
+        .collection("segmentEfforts")
+        .where("segmentId", "==", segmentId)
+        .where("startDate", ">=", fromDate.toISOString())
+        .where("startDate", "<=", toDate.toISOString())
+        .get();
+
+    const efforts = snap.docs.map(doc => doc.data());
+
+    // 🧮 sort fastest first
+    const sorted = efforts.sort((a, b) => {
+        return a.elapsedTime - b.elapsedTime;
+    });
+
+    const top = sorted.slice(0, limit ?? 10);
+
+    return {
+        segmentId,
+        from: fromDate,
+        to: toDate,
+        count: top.length,
+        leaderboard: top.map((e) => ({
+            userId: e.userId,
+            time: e.elapsedTime,
+            distance: e.distance,
+            date: e.startDate,
+        })),
     };
 });

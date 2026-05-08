@@ -8,7 +8,7 @@ firebase-debug.log*
 firebase-debug.*.log*
 
 # Android Studio / IntelliJ
-.idea/
+/.idea/
 *.iml
 *.iws
 .DS_Store

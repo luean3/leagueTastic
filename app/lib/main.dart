@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:leaguetastic/screens/auth_screen.dart';
+import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/services/deep_link_service.dart';
 import 'firebase_options.dart';
 
@@ -27,7 +30,38 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: AppTheme.darkTheme,
       debugShowCheckedModeBanner: false,
-      home: const MainNavigation(),
+      home: const AuthWrapper(),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = AuthService();
+
+    return StreamBuilder<User?>(
+      stream: authService.userStatus,
+      builder: (context, snapshot) {
+        // Falls die Verbindung noch aufgebaut wird
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // Wenn ein User eingeloggt ist -> MainNavigation (inkl. HomeScreen)
+        if (snapshot.hasData) {
+          return const MainNavigation();
+        }
+
+        // Wenn kein User eingeloggt ist -> AuthScreen
+        return const AuthScreen();
+      },
     );
   }
 }

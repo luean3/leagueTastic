@@ -10,3 +10,4 @@ export {getSegment} from "./handlers/segmentById";
 export {onSegmentEffortCreated} from "./services/calculateLeaderboard";
 export {createChallenge} from "./handlers/createChallenge";
 export {getCurrentChallengeState} from "./handlers/getCurrentChallenge";
+export {processActivity} from "./handlers/fetchActivtyOnJob"

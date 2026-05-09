@@ -40,6 +40,7 @@ dependencies:
   flutter_polyline_points: ^2.0.0 # decode polyline
   flutter_map_cache: ^1.5.2
   dio_cache_interceptor_file_store: ^1.2.3
+  firebase_auth: ^6.4.0
 
 
 dev_dependencies:

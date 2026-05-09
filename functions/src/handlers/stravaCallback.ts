@@ -37,7 +37,7 @@ export const stravaCallback = onRequest(async (req, res) => {
         const athleteId = data.athlete.id;
 
         await admin.firestore()
-            .collection("users")
+            .collection("strava-user")
             .doc(String(athleteId))
             .set({
                 accessToken,

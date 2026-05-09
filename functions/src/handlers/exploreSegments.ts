@@ -41,7 +41,7 @@ export const exploreSegments = onRequest({
 
         // 2. USER
         const userSnap = await db
-            .collection("users")
+            .collection("strava-user")
             .where("athleteId", "==", Number(athleteId))
             .limit(1)
             .get();

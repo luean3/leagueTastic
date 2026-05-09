@@ -21,7 +21,7 @@ export async function refreshAccessToken(uid: string, refreshToken: string) {
 
     const data: any = await res.json();
 
-    await admin.firestore().collection("users").doc(uid).update({
+    await admin.firestore().collection("strava-user").doc(uid).update({
         accessToken: data.access_token,
         refreshToken: data.refresh_token,
     });

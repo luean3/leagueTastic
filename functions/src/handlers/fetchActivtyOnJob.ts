@@ -20,7 +20,7 @@ export const processActivity = onDocumentCreated(
         // USER LOAD
         // =========================
         const userSnap = await admin.firestore()
-            .collection("users")
+            .collection("strava-user")
             .where("athleteId", "==", athleteId)
             .limit(1)
             .get();

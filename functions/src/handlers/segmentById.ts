@@ -35,7 +35,7 @@ export const getSegment = onRequest(
 
             // 2. USER FETCH (wie Webhook)
             const userSnap = await db
-                .collection("users")
+                .collection("strava-user")
                 .where("athleteId", "==", Number(athleteId))
                 .limit(1)
                 .get();

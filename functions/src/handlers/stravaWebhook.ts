@@ -2,7 +2,8 @@ import {onRequest} from "firebase-functions/https";
 import * as admin from "firebase-admin";
 import {logger} from "firebase-functions";
 
-export const stravaWebhook = onRequest(async (req, res) => {
+export const stravaWebhook = onRequest(
+    async (req, res) => {
     if (req.method === "GET") {
         res.json({ "hub.challenge": req.query["hub.challenge"] });
         return;

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../services/strava_service.dart';
+import '../services/auth_service.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -11,6 +12,19 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authService = AuthService();
+    final profile = authService.getUserProfile();
+
+    // Bestimme den Anzeigenamen
+    String displayName = "Gast";
+    if (profile != null) {
+      if (profile['displayName'] != null && profile['displayName'] != "Kein Name gesetzt") {
+        displayName = profile['displayName'];
+      } else {
+        displayName = profile['email'] ?? "Gast";
+      }
+    }
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -39,9 +53,9 @@ class ProfileScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            const Text(
-              "Nicola",
-              style: TextStyle(
+            Text(
+              displayName,
+              style: const TextStyle(
                 color: AppColors.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -82,7 +96,9 @@ class ProfileScreen extends StatelessWidget {
 
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () {},
+              onPressed: () {
+                authService.signOut();
+              },
               child: const Text("Logout"),
             ),
           ],

@@ -2,7 +2,10 @@ import {onRequest} from "firebase-functions/https";
 import * as admin from "firebase-admin";
 import {STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET} from "../config/strava";
 
-export const stravaCallback = onRequest(async (req, res) => {
+export const stravaCallback = onRequest(
+    {
+        secrets: [STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET],
+    },async (req, res) => {
     try {
         const code = req.query.code as string;
 

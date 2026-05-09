@@ -1,4 +1,24 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "segmentEfforts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "segmentId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ],
+      "density": "SPARSE_ALL"
+    }
+  ],
   "fieldOverrides": []
 }

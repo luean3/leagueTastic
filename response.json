@@ -1,0 +1,237 @@
+{
+  "source": "api",
+  "segmentIds": [
+    765023,
+    24015854,
+    1622854,
+    1629152,
+    4016687,
+    20701076,
+    6977407,
+    3261311,
+    23445847,
+    2283460
+  ],
+  "segments": [
+    {
+      "id": 765023,
+      "resource_state": 2,
+      "name": "Belpberg from Belp",
+      "climb_category": 2,
+      "climb_category_desc": "3",
+      "avg_grade": 8.7,
+      "start_latlng": [
+        46.882002,
+        7.505568
+      ],
+      "end_latlng": [
+        46.871029,
+        7.519253
+      ],
+      "elev_difference": 268,
+      "distance": 3059.4,
+      "points": "osc}Gw|xl@V{ARwBVgDTiBDS\\k@^]NGp@?bAJLDh@j@VNLDb@Bn@C`@@PDt@^hC`@|Bf@f@Dl@Jb@@rAa@JIX?\\Pd@JbBZx@Hl@It@_@NGRCL?VNP?`A]NAr@Nl@@XGRKPQJW`@{AP_@d@[~@aAJGD?NH`AbAPFJ@n@Cd@@l@ETGrDsAz@a@p@QVOvAwAb@WNAdAa@t@MfCy@VM`By@LM^e@f@a@l@c@x@QHGDMACOEy@m@a@Qa@o@a@_@o@IMGIG]g@IG_AG[IKIYKi@KkCA]C]IWSi@o@Q_@Oi@EYGsB?mAEOGMMIiAc@[Wu@wASi@_@[MQ@?QcCHaCG}CAcD",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/VPWAMYI4UKTPMTK64KLOG3FD2LGUYHACKLGVPQYCFAY4SP6FYDTNP6KXKG5F3CIXW3IFJYRLVSXGNROJJUOSGHY=",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 24015854,
+      "resource_state": 2,
+      "name": "Swiss Cycling Talent-ID Regional, Belpberg (BE)*",
+      "climb_category": 1,
+      "climb_category_desc": "4",
+      "avg_grade": 8.7,
+      "start_latlng": [
+        46.871622,
+        7.508467
+      ],
+      "end_latlng": [
+        46.870837,
+        7.516406
+      ],
+      "elev_difference": 125,
+      "distance": 1440.6,
+      "points": "sra}G{nyl@fCi@vBcAt@a@hGeEVI`DS\\Gx@STK^[`A{Ab@i@VSVKx@Mj@OJOBSM]MGoLuEkDKa@KYQ[YY_@Qa@WaAIw@EuBE[IYMOSMw@WQSuAaD",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/PQSEUU6NPZXEQW5O4UGL75TKI5GJRLPB7F5KXGHVWUY7VSO2TSIRZSWZULWZDU6FFMTV7PAODK4YTF6UBH3GZWCF",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 1622854,
+      "resource_state": 2,
+      "name": "Gurten East Climb",
+      "climb_category": 2,
+      "climb_category_desc": "3",
+      "avg_grade": 7,
+      "start_latlng": [
+        46.92701496188243,
+        7.448614044121884
+      ],
+      "end_latlng": [
+        46.91729073882747,
+        7.44405956939556
+      ],
+      "elev_difference": 210.7,
+      "distance": 3000,
+      "points": "yll}Gyxml@LYh@]RUBMLQxAcAPOd@YBMNKrAs@NM^KFI@KLONGNKfAMdBdALDh@Dx@CXEf@O`@S^_@v@gA`Am@VUNQl@k@NU~@aAj@a@bAeAXUrAw@nAmB^e@ZWPU\\W^u@h@w@lCsCr@]~@[d@e@d@QPEZQ^E^[b@MlAi@z@WdA?JHh@@^C`@K^Cf@Bd@HJFb@n@DTGPMHk@Ds@SOCMJUl@OPWNQXc@hBSh@o@~@q@h@]h@GLOt@K|BQbAIpA?jALjBVd@V\\FDLRVNFATS^}@LS`@[T@JJBHBPGn@?j@ERMZK\\MnCa@fFWlHGv@_@\\c@RYZMb@Gf@Qp@SZOL{AdC]~@g@`B",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/ALQIURC5NGDIUF5XY5V72WSNUTVURS233JREVF6BWOB2EBYZ2BYAL2OOIHTKZGUQ5NNAYNANYOPEQSBKOSDJSGFW",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 1629152,
+      "resource_state": 2,
+      "name": "Gurten Downhill",
+      "climb_category": 0,
+      "climb_category_desc": "NC",
+      "avg_grade": -12.4,
+      "start_latlng": [
+        46.919418652585634,
+        7.440195931128636
+      ],
+      "end_latlng": [
+        46.92724097990145,
+        7.448255382485174
+      ],
+      "elev_difference": 214.2,
+      "distance": 1723.4,
+      "points": "i}j}Gedll@WaB?m@O}AEYEIQaBk@{@[EULYLW_@Gm@?KEf@G_@?o@YSSm@GE?l@MNQEUDKRAr@Gb@GLSISOQUQQUc@Ga@QWQ?Eh@HWHMEHYE]m@De@Cm@D{AUn@s@BEm@BgBP_Ae@eBQa@[R]D[KYE[{@OIm@Lc@FcAQWKa@FYNa@v@a@Va@j@B^MRMMc@Rk@OWc@Hg@]YYq@Yg@YoAEg@g@u@SO?k@DaA`@i@Pw@CMw@b@[FGLMY@WIKEBLSEIGRG@CIU?KI",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/4PVJZI4MDJCVJ6XW5XNSMCD3D6IPZAZ43AAJTMOSOHUII4JGC7GVCL4ZUZB5INEXZ6XJ5W3XJ4BBE7GF334TXYQ=",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 4016687,
+      "resource_state": 2,
+      "name": "Bantiger Öpper Half",
+      "climb_category": 2,
+      "climb_category_desc": "3",
+      "avg_grade": 6.8,
+      "start_latlng": [
+        46.968321,
+        7.518984
+      ],
+      "end_latlng": [
+        46.977494,
+        7.529321
+      ],
+      "elev_difference": 264.6,
+      "distance": 3894,
+      "points": "_ot}Gsp{l@Em@?_AF{CJiCV_B`BuGVqBRgEXkBZeAh@yANg@PcAf@aFJwBDsCA]Ig@_@cAMQQO[Qg@g@MQQa@UeAI{@A]Fw@FUN]TUr@e@RSj@o@FIHWFY?[Ge@i@yBi@iB_BuGoAcEKo@IcBBaDA]E]Us@Sa@e@m@q@o@eAu@e@WuAe@S?QBWNMLiAtAa@d@UPYJ_@F_A\\KNKRUlAEHQDGEGSOyBKq@]aBc@mA}@sA_@a@cDeCW[ECY_@SUQGQ?m@b@_@P_Az@[^i@\\g@b@OTQf@Mn@GdCDh@Jj@Vb@XZT\\P\\BZ?PKf@IJKDKBKAMGmAcAWMw@?q@`@a@NWPk@`@e@f@k@n@QXQb@Kj@Cr@KnFFzBHh@T`AL^t@dBPl@Jn@@PGx@CxBXhFCv@K`AGvAIf@OPIBi@ES@",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/XK5A2OOX7JLBRN5LTVG6OZMA2VAYMTBOTZRCJGD5NYN32PL2NNYYZOIACYFMHIZZH5HBDPDFHRIUJO4ZXSJEDYA=",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 20701076,
+      "resource_state": 2,
+      "name": "am Puff verbi",
+      "climb_category": 0,
+      "climb_category_desc": "NC",
+      "avg_grade": 1.8,
+      "start_latlng": [
+        46.901496,
+        7.485174
+      ],
+      "end_latlng": [
+        46.906664,
+        7.476549
+      ],
+      "elev_difference": 16.2,
+      "distance": 878.8,
+      "points": "img}Gi}tl@sAjCuBhFmAjCmB|CmA|BuAdEc@bAKPk@l@g@v@iAvAsAnBoAjCc@zASf@u@dA",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/HMLKIAEOI3YXUOYXKAKTYX6QRFRGAG2DBILH6IBRUYQ5F4L7RSGHLSPXK64SBRQ5PYM7TNSNODKFE2B5J2ESD5Y=",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 6977407,
+      "resource_state": 2,
+      "name": "Dentenberg West Shoulder",
+      "climb_category": 1,
+      "climb_category_desc": "4",
+      "avg_grade": 6.6,
+      "start_latlng": [
+        46.940374,
+        7.508902
+      ],
+      "end_latlng": [
+        46.940077,
+        7.524108
+      ],
+      "elev_difference": 105,
+      "distance": 1594.3,
+      "points": "i`o}Gsqyl@]q@@e@BMN]ZSd@IZKR?PG^Wf@e@r@_@z@eAXi@\\}@Z]DOJs@ZyAJw@PeAHmA@u@BYH]F}@?k@XqB@gAKwBCsBGcA@e@@WAg@OoBAm@QoBAiAGu@MaACmAG{@QwAE{A@ULq@BeBE{@IYSSYIQ@GBOTQ^MN_@lAi@bAKJGAQc@K_@FkD[eDOg@]]m@iA",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/O2UEWYDSEQOL3PERG5WXVRDCJPJ5LDNAIHCUJALWBZO3CI4NGN6QLMIPKTAFOYTICO4IM3ENUBYJRCNMK5DE3FTP",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 3261311,
+      "resource_state": 2,
+      "name": "Allmendingen Climb",
+      "climb_category": 0,
+      "climb_category_desc": "NC",
+      "avg_grade": 3.2,
+      "start_latlng": [
+        46.9023111,
+        7.5392627
+      ],
+      "end_latlng": [
+        46.9128286,
+        7.5270685
+      ],
+      "elev_difference": 47.6,
+      "distance": 1502.2,
+      "points": "mrg}Gko_m@_AfBgKtNaBxByAfBwB`CkEpE}DjEsBvBaJbKeBhBaHvH_AbBQd@",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/XP4SIOM2UOR2NBRV5DHAQFJEZJX7BYCTSWSXURRRKL53OPVF3AWELD4DPFF2DWZSXHUAHOA7DSA2OSDYNJI6WMQJ",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 23445847,
+      "resource_state": 2,
+      "name": "Monté Bremgartenwald",
+      "climb_category": 0,
+      "climb_category_desc": "NC",
+      "avg_grade": 3.7,
+      "start_latlng": [
+        46.969288,
+        7.419984
+      ],
+      "end_latlng": [
+        46.962715,
+        7.417411
+      ],
+      "elev_difference": 30,
+      "distance": 803.5,
+      "points": "_ut}G{ehl@p@AbAHj@CfAMZ?LB`Aj@tB`Bf@V~@Z|@d@xAdB~CxCnAz@~@^r@RX?ZCl@Kj@O`Bo@",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/EHLVNTQZHP4EH2QSRFPXUTSCAMLQCFDYQR7I77ZW2ESTXJAUEMUF5XCUJU2WLLDT7GIIN73DWZ3NWLGXKZRT5LY=",
+      "local_legend_enabled": true
+    },
+    {
+      "id": 2283460,
+      "resource_state": 2,
+      "name": "Schüpberg",
+      "climb_category": 1,
+      "climb_category_desc": "4",
+      "avg_grade": 6.7,
+      "start_latlng": [
+        47.036161110869834,
+        7.384947104687888
+      ],
+      "end_latlng": [
+        47.023111614398466,
+        7.394500094810882
+      ],
+      "elev_difference": 141.5,
+      "distance": 2110.4,
+      "points": "_wa~G{jal@`@Q^[rCuC\\_@j@gAlCcG`@}@H_@F_@@c@?e@IeA[wAq@eBMy@CWJwEHUNMXOh@CnAo@d@M`@@fAGd@Nd@Tv@f@^LXDdBMnASv@El@?j@Fl@Ph@Hf@PRLRHT@`@]d@o@Ti@t@{AJ_@n@iAnAeBPQZUf@Ob@IrD[p@BbAARBtAf@h@JtBEP?p@Jl@CNAZYJMXs@NSN[?GGOEC@d@a@t@EH@H@IZa@HQ@a@",
+      "starred": false,
+      "elevation_profile": "https://d3o5xota0a1fcr.cloudfront.net/v6/charts/I5Q6E2GPAICPHXD37U3UICTEQL4FOVCBH6YLPMXWQVGFXCXUVVNKQMAVUQBQEQJOH3M4VLC3755YGDX7UGTWTBPF",
+      "local_legend_enabled": true
+    }
+  ]
+}

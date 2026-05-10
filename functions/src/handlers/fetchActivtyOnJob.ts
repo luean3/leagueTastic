@@ -2,9 +2,16 @@ import {onDocumentCreated} from "firebase-functions/firestore";
 import * as admin from "firebase-admin";
 import {refreshAccessToken} from "../services/stravaService";
 import {logger} from "firebase-functions";
+import {STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET} from "../config/strava";
 
 export const processActivity = onDocumentCreated(
-    "jobs/{id}",
+    {
+        document: "jobs/{id}",
+        secrets: [
+            STRAVA_CLIENT_ID,
+            STRAVA_CLIENT_SECRET,
+        ],
+    },
 
     async (event) => {
         const job = event.data?.data();

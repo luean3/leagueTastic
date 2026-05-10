@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               color: AppColors.primary,
               child: const Text(
-                "VeloLeague",
+                "LeagueTastic",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),

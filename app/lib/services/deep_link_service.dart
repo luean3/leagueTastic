@@ -13,9 +13,6 @@ class DeepLinkService {
           uri.host == "strava-success") {
         final code = uri.queryParameters["code"];
 
-        print("STRAVA CODE: $code");
-
-        // TODO: Firebase function call oder navigation trigger
       }
     });
   }

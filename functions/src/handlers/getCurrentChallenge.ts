@@ -1,53 +1,91 @@
-import {onRequest} from "firebase-functions/https";
+import { onCall } from "firebase-functions/https";
 import * as admin from "firebase-admin";
 
-export const getCurrentChallengeState = onRequest(async (req, res) => {
-    const challengeId = req.query.challengeId as string;
+export const getCurrentChallengeState = onCall(async (request) => {
+    const { challengeId } = request.data;
+
+    if (!challengeId) {
+        throw new Error("missing challengeId");
+    }
 
     const db = admin.firestore();
 
+    // 1. Challenge laden
     const challengeSnap = await db
         .collection("challenges")
         .doc(challengeId)
         .get();
 
     if (!challengeSnap.exists) {
-        res.status(404).send("not found");
-        return;
+        throw new Error("challenge not found");
     }
 
     const challenge = challengeSnap.data();
 
-    const segmentsSnap = await db
+    // 2. Mapping laden (challengeSegments)
+    const mappingSnap = await db
         .collection("challengeSegments")
         .where("challengeId", "==", challengeId)
+        .orderBy("weekIndex")
         .get();
-
-    const segments = segmentsSnap.docs.map(d => d.data());
 
     const now = new Date();
 
-    const current = segments.find(s =>
-        now >= s.startDate.toDate() &&
-        now <= s.endDate.toDate()
+    // 3. Segment-Details nachladen (WICHTIG!)
+    const segments = await Promise.all(
+        mappingSnap.docs.map(async (d) => {
+            const mapping = d.data();
+
+            const segmentSnap = await db
+                .collection("segments")
+                .doc(String(mapping.segmentId))
+                .get();
+
+            const segmentData = segmentSnap.data() || {};
+
+            const startDate = segmentData.startDate?.toDate?.();
+            const endDate = segmentData.endDate?.toDate?.();
+
+            const isActive =
+                startDate &&
+                endDate &&
+                now >= startDate &&
+                now <= endDate;
+
+            const isPast = endDate && now > endDate;
+            const isUpcoming = startDate && now < startDate;
+
+            return {
+                ...segmentData,      // 👈 echte Segmentdaten
+                ...mapping,          // weekIndex etc.
+                isActive: !!isActive,
+                isPast: !!isPast,
+                isUpcoming: !!isUpcoming,
+            };
+        })
     );
 
-    if (!current) {
-        res.json({challenge, currentSegment: null, leaderboard: []});
-        return;
+    // 4. aktuelles Segment finden
+    const currentSegment = segments.find((s) => s.isActive) as any|| null;
+
+    let leaderboard: any[] = [];
+
+    if (currentSegment) {
+        const leaderboardSnap = await db
+            .collection("segmentLeaderboards")
+            .doc(`${challengeId}_${currentSegment.segmentId}`)
+            .collection("entries")
+            .orderBy("bestTime", "asc")
+            .limit(50)
+            .get();
+
+        leaderboard = leaderboardSnap.docs.map((d) => d.data());
     }
 
-    const leaderboardSnap = await db
-        .collection("segmentLeaderboards")
-        .doc(`${challengeId}_${current.segmentId}`)
-        .collection("entries")
-        .orderBy("bestTime", "asc")
-        .limit(50)
-        .get();
-
-    res.json({
+    return {
         challenge,
-        currentSegment: current,
-        leaderboard: leaderboardSnap.docs.map(d => d.data())
-    });
+        segments,
+        currentSegment,
+        leaderboard,
+    };
 });

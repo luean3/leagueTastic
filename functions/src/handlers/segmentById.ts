@@ -12,7 +12,7 @@ export const getSegment = onRequest(
     async (req, res) => {
         try {
             const segmentId = req.query.segmentId as string;
-            const athleteId = req.query.athleteId as string;
+            const athleteId = '58272432';
 
             if (!segmentId || !athleteId) {
                 res.status(400).send("segmentId + athleteId required");

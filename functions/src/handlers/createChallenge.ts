@@ -1,5 +1,6 @@
 import {onRequest} from "firebase-functions/https";
 import * as admin from "firebase-admin";
+
 export const createChallenge = onRequest(async (req, res) => {
     const {name, description, startDate, segmentIds, createdBy} = req.body;
 
@@ -11,13 +12,18 @@ export const createChallenge = onRequest(async (req, res) => {
     const db = admin.firestore();
     const challengeRef = db.collection("challenges").doc();
     const batch = db.batch();
+    const start = new Date(startDate);
 
+// letzte Woche berechnen
+    const end = new Date(start);
+    end.setDate(start.getDate() + segmentIds.length * 7);
     batch.set(challengeRef, {
         id: challengeRef.id,
         name,
         description,
         createdBy,
         startDate: admin.firestore.Timestamp.fromDate(new Date(startDate)),
+        endDate: admin.firestore.Timestamp.fromDate(new Date(end)),
         segmentIds,
         createdAt: Date.now()
     });

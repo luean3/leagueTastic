@@ -7,4 +7,10 @@ class AppColors {
   static const textSecondary = Colors.white70;
   static const card = Color(0xFFFF6B00);
   static const navBackground = Color(0xFFE0E0E0);
+
+
+  static const surface = Color(0xFF2A2A3A); // Cards
+
+  static const surfaceSoft = Color(0xFF35354A);
+  static const accentSoft = Color(0xFFFF6B00);
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/core/theme/app_colors.dart';
 import 'package:leaguetastic/services/auth_service.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -42,9 +43,11 @@ class _AuthScreenState extends State<AuthScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
-            content: Text(isLogin
-                ? "Login fehlgeschlagen. Daten prüfen."
-                : "Registrierung fehlgeschlagen. E-Mail evtl. schon vergeben."),
+            content: Text(
+              isLogin
+                  ? "Login fehlgeschlagen. Daten prüfen."
+                  : "Registrierung fehlgeschlagen. E-Mail evtl. schon vergeben.",
+            ),
           ),
         );
       }
@@ -53,8 +56,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
+    final loc = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -62,27 +71,25 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: const Text(
+              color: AppColors.primary, // bewusst behalten (Brand Color)
+              child: Text(
                 "LeagueTastic",
                 textAlign: TextAlign.center,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.white, // OK: Brand Header bleibt fix
                 ),
               ),
             ),
 
             const SizedBox(height: 30),
 
-            // DYNAMISCHE ÜBERSCHRIFT
+            // TITLE
             Text(
-              isLogin ? "Willkommen zurück" : "Neues Konto erstellen",
-              style: const TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
+              isLogin ? loc.welcomeBack : loc.createAccount,
+              style: textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
               ),
             ),
 
@@ -95,15 +102,20 @@ class _AuthScreenState extends State<AuthScreen> {
                   key: _formKey,
                   child: ListView(
                     children: [
-                      // username
+                      // USERNAME
                       if (!isLogin) ...[
                         TextFormField(
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
+                          style: TextStyle(color: colorScheme.onSurface),
+                          decoration: InputDecoration(
                             labelText: "Benutzername",
-                            labelStyle: TextStyle(color: Colors.white70),
+                            labelStyle: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.7),
+                            ),
                             enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Colors.white24)),
+                              borderSide: BorderSide(
+                                color: colorScheme.onSurface.withOpacity(0.2),
+                              ),
+                            ),
                           ),
                           validator: (value) =>
                               value!.isEmpty ? "Bitte Namen eingeben" : null,
@@ -112,63 +124,77 @@ class _AuthScreenState extends State<AuthScreen> {
                         const SizedBox(height: 20),
                       ],
 
-                      // email
+                      // EMAIL
                       TextFormField(
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: colorScheme.onSurface),
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: "E-Mail",
-                          labelStyle: TextStyle(color: Colors.white70),
+                          labelStyle: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
                           enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white24)),
+                            borderSide: BorderSide(
+                              color: colorScheme.onSurface.withOpacity(0.2),
+                            ),
+                          ),
                         ),
                         validator: (value) =>
                             value!.isEmpty || !value.contains("@")
-                                ? "Gültige E-Mail eingeben"
-                                : null,
+                            ? "Gültige E-Mail eingeben"
+                            : null,
                         onSaved: (value) => email = value!.trim(),
                       ),
 
                       const SizedBox(height: 20),
 
-                      // password
+                      // PASSWORD
                       TextFormField(
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: colorScheme.onSurface),
                         obscureText: true,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           labelText: "Passwort",
-                          labelStyle: TextStyle(color: Colors.white70),
+                          labelStyle: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
                           enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white24)),
+                            borderSide: BorderSide(
+                              color: colorScheme.onSurface.withOpacity(0.2),
+                            ),
+                          ),
                         ),
-                        validator: (value) =>
-                            value!.length < 6 ? "Passwort zu kurz (min. 6 Zeichen)" : null,
+                        validator: (value) => value!.length < 6
+                            ? "Passwort zu kurz (min. 6 Zeichen)"
+                            : null,
                         onSaved: (value) => password = value!,
                       ),
 
                       const SizedBox(height: 40),
 
+                      // BUTTON / LOADING
                       if (isLoading)
-                        const Center(
-                            child: CircularProgressIndicator(color: AppColors.primary))
+                        Center(
+                          child: CircularProgressIndicator(
+                            color: colorScheme.primary,
+                          ),
+                        )
                       else
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
+                            backgroundColor: colorScheme.primary,
+                            foregroundColor: colorScheme.onPrimary,
                             padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
                           ),
                           onPressed: handleSubmit,
-                          child: Text(
-                            isLogin ? "Einloggen" : "Registrieren",
-                            style: const TextStyle(fontSize: 16, color: Colors.white),
-                          ),
+                          child: Text(isLogin ? "Einloggen" : "Registrieren"),
                         ),
 
                       const SizedBox(height: 20),
 
+                      // SWITCH LOGIN / REGISTER
                       TextButton(
                         onPressed: () {
                           setState(() {
@@ -179,7 +205,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           isLogin
                               ? "Noch kein Konto? Jetzt registrieren"
                               : "Bereits ein Konto? Hier einloggen",
-                          style: const TextStyle(color: Colors.white70),
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
                         ),
                       ),
                     ],

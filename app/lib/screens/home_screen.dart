@@ -8,12 +8,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // HEADER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -21,28 +24,34 @@ class HomeScreen extends StatelessWidget {
               child: const Text(
                 "LeagueTastic",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               "Ride. Compete. Win.",
-              style: TextStyle(color: AppColors.textPrimary),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withOpacity(0.7),
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Aktuelle Challenges",
-                  style: TextStyle(
-                    color: AppColors.textPrimary,
+                  style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -59,14 +68,20 @@ class HomeScreen extends StatelessWidget {
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: colorScheme.primary,
+                      ),
+                    );
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                    return const Center(
+                    return Center(
                       child: Text(
                         "Keine Challenges vorhanden",
-                        style: TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withOpacity(0.7),
+                        ),
                       ),
                     );
                   }
@@ -77,17 +92,14 @@ class HomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      final data =
-                      docs[index].data() as Map<String, dynamic>;
+                      final data = docs[index].data() as Map<String, dynamic>;
 
                       return ChallengeCard(
                         id: data['id'],
                         title: data['name'] ?? '',
                         description: data['description'] ?? '',
-                        startDate:
-                        (data['startDate'] as Timestamp).toDate(),
-                        endDate:
-                        (data['endDate'] as Timestamp).toDate(),
+                        startDate: (data['startDate'] as Timestamp).toDate(),
+                        endDate: (data['endDate'] as Timestamp).toDate(),
                         segments: (data['segmentIds'] as List?)?.length ?? 0,
                       );
                     },

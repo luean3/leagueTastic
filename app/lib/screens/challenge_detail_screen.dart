@@ -5,14 +5,10 @@ import 'package:cloud_functions/cloud_functions.dart';
 class ChallengeDetailScreen extends StatefulWidget {
   final String challengeId;
 
-  const ChallengeDetailScreen({
-    super.key,
-    required this.challengeId,
-  });
+  const ChallengeDetailScreen({super.key, required this.challengeId});
 
   @override
-  State<ChallengeDetailScreen> createState() =>
-      _ChallengeDetailScreenState();
+  State<ChallengeDetailScreen> createState() => _ChallengeDetailScreenState();
 }
 
 class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
@@ -53,7 +49,9 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
   }
 
   String s(dynamic v) => v?.toString() ?? '';
+
   int i(dynamic v) => (v is int) ? v : int.tryParse(v.toString()) ?? 0;
+
   double d(dynamic v) => (v is num) ? v.toDouble() : 0.0;
 
   Color statusColor(bool active, bool past, bool upcoming) {
@@ -65,35 +63,37 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     if (loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(s(challenge?['name'])),
-        backgroundColor: AppColors.primary,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         elevation: 0,
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-
           /// HEADER CARD
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.15),
+              color: colorScheme.primary.withOpacity(0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
               s(challenge?['description']),
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
+                color: colorScheme.onSurface,
               ),
             ),
           ),
@@ -101,21 +101,20 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           const SizedBox(height: 20),
 
           /// CURRENT SEGMENT
-          const Text(
+          Text(
             "Aktuelles Segment",
-            style: TextStyle(
-              fontSize: 18,
+            style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.primary,
+              color: colorScheme.primary,
             ),
           ),
 
           const SizedBox(height: 10),
 
           if (currentSegment == null)
-            const Text(
+            Text(
               "Kein aktives Segment",
-              style: TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
             )
           else
             Container(
@@ -129,25 +128,28 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   s(currentSegment!['name']),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 subtitle: Text(
                   "Woche ${i(currentSegment!['weekIndex']) + 1}",
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
               ),
             ),
 
           const SizedBox(height: 20),
 
-          /// SEGMENTS
-          const Text(
+          /// SEGMENTS TITLE
+          Text(
             "Alle Segmente",
-            style: TextStyle(
-              fontSize: 18,
+            style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: colorScheme.primary,
             ),
           ),
 
@@ -171,7 +173,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               child: ListTile(
                 title: Text(
                   s(map['name']),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: colorScheme.onSurface,
+                  ),
                 ),
                 subtitle: Text(
                   active
@@ -179,44 +184,45 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                       : past
                       ? "Abgeschlossen"
                       : "Kommend",
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.7),
+                  ),
                 ),
                 trailing: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 6),
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     "W${i(map['weekIndex']) + 1}",
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
                 ),
               ),
             );
-          }).toList(),
+          }),
 
           const SizedBox(height: 20),
 
           /// LEADERBOARD
-          const Text(
+          Text(
             "Leaderboard",
-            style: TextStyle(
-              fontSize: 18,
+            style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: colorScheme.primary,
             ),
           ),
 
           const SizedBox(height: 10),
 
           if (leaderboard.isEmpty)
-            const Text(
+            Text(
               "Noch keine Einträge",
-              style: TextStyle(color: AppColors.textPrimary),
+              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
             )
           else
             ...leaderboard.asMap().entries.map((entry) {
@@ -226,22 +232,30 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               return Container(
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.12),
+                  color: colorScheme.primary.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: colorScheme.primary,
                     child: Text(
                       "$rank",
-                      style: const TextStyle(color: Colors.white),
+                      style: TextStyle(color: colorScheme.onPrimary),
                     ),
                   ),
-                  title: Text(s(data['userName'])),
-                  subtitle: Text("${d(data['bestTime'])} sec"),
+                  title: Text(
+                    s(data['userName']),
+                    style: TextStyle(color: colorScheme.onSurface),
+                  ),
+                  subtitle: Text(
+                    "${d(data['bestTime'])} sec",
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ),
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );

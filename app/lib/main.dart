@@ -6,16 +6,19 @@ import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/services/deep_link_service.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
-import 'core/theme/app_theme.dart';
+import 'core/theme/dark_theme.dart';
+import 'core/theme/light_theme.dart';
 import 'widgets/main_navigation.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/providers/locale_provider.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
@@ -41,21 +44,33 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.darkTheme,
-      debugShowCheckedModeBanner: false,
-
-      supportedLocales: const [
-        Locale('en'),
-        Locale('de')
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
       ],
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeProvider, localeProvider, _) {
+          return MaterialApp(
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: context.watch<ThemeProvider>().themeMode,
+            locale: context.watch<LocaleProvider>().locale,
 
-      home: const AuthWrapper(),
+            supportedLocales: const [Locale('de'), Locale('en')],
+
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+
+            // START SCREEN
+            home: const AuthWrapper(),
+          );
+        },
+      ),
     );
   }
 }
@@ -72,9 +87,7 @@ class AuthWrapper extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 

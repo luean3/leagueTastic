@@ -1,0 +1,23 @@
+{
+  "@@locale": "en",
+
+  "welcomeBack": "Welcome back",
+  "createAccount": "Create account",
+  "email": "Email",
+  "password": "Password",
+  "login": "Login",
+  "register": "Register",
+  "profile": "Profile",
+  "guest": "Guest",
+  "level": "Level",
+  "wins": "Wins",
+  "races": "Races",
+  "points": "Points",
+  "settings": "Settings",
+  "darkMode": "Dark Mode",
+  "language": "Language",
+  "german": "German",
+  "english": "English",
+  "connectStrava": "Connect Strava",
+  "logout": "Logout"
+}

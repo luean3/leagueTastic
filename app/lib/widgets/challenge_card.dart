@@ -22,60 +22,72 @@ class ChallengeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return GestureDetector(
-        onTap: () {
-          Navigator.push(context, MaterialPageRoute(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
             builder: (_) => ChallengeDetailScreen(challengeId: id),
           ),
-          );
-        },
-        child: Card(
-          color: AppColors.primary.withOpacity(0.15),
-          margin: const EdgeInsets.only(bottom: 12),
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+        );
+      },
+      child: Card(
+        color: theme.cardColor,
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  description,
-                  style: const TextStyle(color: AppColors.textPrimary),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                description,
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.7),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  "Start: ${startDate.toLocal()}",
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 12,
-                  ),
+              ),
+
+              const SizedBox(height: 6),
+
+              Text(
+                "Start: ${startDate.toLocal()}",
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 12,
                 ),
-                Text(
-                  "Ende: ${endDate.toLocal()}",
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 12,
-                  ),
+              ),
+
+              Text(
+                "Ende: ${endDate.toLocal()}",
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 12,
                 ),
-                Text(
-                  "Segmente: ${segments}",
-                  style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 12,
-                  ),
+              ),
+
+              Text(
+                "Segmente: $segments",
+                style: TextStyle(
+                  color: colorScheme.onSurface.withOpacity(0.6),
+                  fontSize: 12,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

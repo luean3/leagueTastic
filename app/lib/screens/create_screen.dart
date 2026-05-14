@@ -43,11 +43,13 @@ class _CreateScreenState extends State<CreateScreen> {
       // TODO: Firebase speichern
     }
   }
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -55,24 +57,25 @@ class _CreateScreenState extends State<CreateScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
+              color: AppColors.primary, // Branding ok
               child: const Text(
                 "LeagueTastic",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               "Neue Challenge erstellen",
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
               ),
             ),
 
@@ -85,12 +88,22 @@ class _CreateScreenState extends State<CreateScreen> {
                   key: _formKey,
                   child: ListView(
                     children: [
+
                       // NAME
                       TextFormField(
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
                           labelText: "Name",
-                          labelStyle: TextStyle(color: Colors.white70),
+                          labelStyle: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: colorScheme.onSurface.withOpacity(0.2),
+                            ),
+                          ),
                         ),
                         validator: (value) =>
                         value!.isEmpty ? "Bitte Name eingeben" : null,
@@ -101,6 +114,10 @@ class _CreateScreenState extends State<CreateScreen> {
 
                       // DATE PICKER
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
+                        ),
                         onPressed: pickDateRange,
                         child: Text(
                           startDate == null
@@ -112,9 +129,23 @@ class _CreateScreenState extends State<CreateScreen> {
                       const SizedBox(height: 20),
 
                       // PRIVACY
-                      DropdownButtonFormField(
-                        dropdownColor: AppColors.background,
+                      DropdownButtonFormField<String>(
                         value: privacy,
+                        dropdownColor: theme.cardColor,
+                        style: TextStyle(
+                          color: colorScheme.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: "Privatsphäre",
+                          labelStyle: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: colorScheme.onSurface.withOpacity(0.2),
+                            ),
+                          ),
+                        ),
                         items: const [
                           DropdownMenuItem(
                             value: "Public",
@@ -130,10 +161,6 @@ class _CreateScreenState extends State<CreateScreen> {
                             privacy = value!;
                           });
                         },
-                        decoration: const InputDecoration(
-                          labelText: "Privatsphäre",
-                          labelStyle: TextStyle(color: Colors.white70),
-                        ),
                       ),
 
                       const SizedBox(height: 40),
@@ -141,7 +168,8 @@ class _CreateScreenState extends State<CreateScreen> {
                       // SAVE BUTTON
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(25),

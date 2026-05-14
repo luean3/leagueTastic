@@ -4,9 +4,11 @@ import '../widgets/map_widget.dart';
 
 class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final leaderboard = [
       {"name": "Nico", "time": "12:34"},
       {"name": "Lukas", "time": "13:02"},
@@ -14,12 +16,11 @@ class LeaderboardScreen extends StatelessWidget {
       {"name": "Tom", "time": "14:10"},
     ];
 
-    // TEST POLYLINE (cleaned, no hidden chars)
     final String polylineString =
         "uwz~Gc~|l@u@e@w@q@_Ao@g@c@eAo@_Au@k@g@qAuAkCiD{KgOyB_DwCmEyEqG_AwAaAsAoByC";
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -31,40 +32,56 @@ class LeaderboardScreen extends StatelessWidget {
               child: const Text(
                 "Leaderboard",
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
 
             const SizedBox(height: 16),
 
-            const Text(
+            Text(
               "Aktuelles Segment",
-              style: TextStyle(
-                color: AppColors.textPrimary,
-                fontSize: 18,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.w600,
               ),
             ),
 
             const SizedBox(height: 16),
 
-            // MAP (SAFE)
+            // MAP
             Container(
               height: 300,
               width: double.infinity,
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
+                color: theme.cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
+                border: Border.all(
+                  color: colorScheme.onSurface.withOpacity(0.1),
+                ),
               ),
               clipBehavior: Clip.hardEdge,
               child: polylineString.isEmpty
-                  ? const Center(child: Text("No route"))
-                  : StravaMapWidget(encodedPolyline: polylineString),
+                  ? Center(
+                child: Text(
+                  "No route",
+                  style: TextStyle(
+                    color: colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              )
+                  : StravaMapWidget(
+                encodedPolyline: polylineString,
+              ),
             ),
 
             const SizedBox(height: 16),
 
-            // LIST (FIXED OVERFLOW)
+            // LIST
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -79,18 +96,33 @@ class LeaderboardScreen extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: AppColors.card,
+                      color: theme.cardColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
                       children: [
                         Text(
                           "#${index + 1}",
-                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                         const SizedBox(width: 16),
-                        Expanded(child: Text(user["name"]!)),
-                        Text(user["time"]!),
+                        Expanded(
+                          child: Text(
+                            user["name"]!,
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          user["time"]!,
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
                       ],
                     ),
                   );

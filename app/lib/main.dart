@@ -5,32 +5,72 @@ import 'package:leaguetastic/screens/auth_screen.dart';
 import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/services/deep_link_service.dart';
 import 'firebase_options.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
-import 'core/theme/app_theme.dart';
+import 'core/theme/dark_theme.dart';
+import 'core/theme/light_theme.dart';
 import 'widgets/main_navigation.dart';
+import 'core/providers/theme_provider.dart';
+import 'core/providers/locale_provider.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  final deepLinkService = DeepLinkService();
-  deepLinkService.init();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final DeepLinkService _deepLinkService = DeepLinkService();
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _deepLinkService.init();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: AppTheme.darkTheme,
-      debugShowCheckedModeBanner: false,
-      home: const AuthWrapper(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
+      child: Consumer2<ThemeProvider, LocaleProvider>(
+        builder: (context, themeProvider, localeProvider, _) {
+          return MaterialApp(
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: context.watch<ThemeProvider>().themeMode,
+            locale: context.watch<LocaleProvider>().locale,
+
+            supportedLocales: const [Locale('de'), Locale('en')],
+
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+
+            // START SCREEN
+            home: const AuthWrapper(),
+          );
+        },
+      ),
     );
   }
 }
@@ -45,21 +85,16 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: authService.userStatus,
       builder: (context, snapshot) {
-        // Falls die Verbindung noch aufgebaut wird
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
+            body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Wenn ein User eingeloggt ist -> MainNavigation (inkl. HomeScreen)
         if (snapshot.hasData) {
           return const MainNavigation();
         }
 
-        // Wenn kein User eingeloggt ist -> AuthScreen
         return const AuthScreen();
       },
     );

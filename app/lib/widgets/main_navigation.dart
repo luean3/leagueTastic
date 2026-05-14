@@ -41,20 +41,25 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       body: PageView(
         controller: _pageController,
         onPageChanged: onPageChanged,
         children: screens,
       ),
+
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: AppColors.navBackground,
+        backgroundColor: theme.cardColor,
         currentIndex: currentIndex,
         onTap: onTabTapped,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: Colors.black54,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurface.withOpacity(0.5),
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.flag), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: ""),

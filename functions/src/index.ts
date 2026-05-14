@@ -1,5 +1,6 @@
 // index.ts
 import * as admin from "firebase-admin";
+
 admin.initializeApp();
 
 export {stravaWebhook} from "./handlers/stravaWebhook";
@@ -11,3 +12,4 @@ export {onSegmentEffortCreated} from "./services/calculateLeaderboard";
 export {createChallenge} from "./handlers/createChallenge";
 export {getCurrentChallengeState} from "./handlers/getCurrentChallenge";
 export {processActivity} from "./handlers/fetchActivtyOnJob"
+export {getSegments} from './handlers/getSegments'

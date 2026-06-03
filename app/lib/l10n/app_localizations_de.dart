@@ -64,4 +64,31 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get logout => 'Logout';
+
+  @override
+  String get currentSegment => "Aktuelles Segment";
+
+  @override
+  String get active => "Aktiv";
+
+  @override
+  String get allSegments => "Alle Segmente";
+
+  @override
+  String get finished => "Abgeschlossen";
+
+  @override
+  String get noActiveSegment => "Kein aktives Segment";
+
+  @override
+  String get noEntries => "Noch keine Einträge";
+
+  @override
+  String get upcoming => "Kommend";
+
+  @override
+  String get point => "Punkt";
+
+  @override
+  String get week => "Woche";
 }

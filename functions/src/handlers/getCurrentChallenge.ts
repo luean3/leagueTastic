@@ -43,8 +43,8 @@ export const getCurrentChallengeState = onCall(async (request) => {
 
             const segmentData = segmentSnap.data() || {};
 
-            const startDate = segmentData.startDate?.toDate?.();
-            const endDate = segmentData.endDate?.toDate?.();
+            const startDate = mapping.startDate?.toDate?.();
+            const endDate = mapping.endDate?.toDate?.();
 
             const isActive =
                 startDate &&
@@ -70,17 +70,16 @@ export const getCurrentChallengeState = onCall(async (request) => {
 
     let leaderboard: any[] = [];
 
-    if (currentSegment) {
-        const leaderboardSnap = await db
-            .collection("segmentLeaderboards")
-            .doc(`${challengeId}_${currentSegment.segmentId}`)
-            .collection("entries")
-            .orderBy("bestTime", "asc")
-            .limit(50)
-            .get();
 
-        leaderboard = leaderboardSnap.docs.map((d) => d.data());
-    }
+    const challengeLeaderboardSnap = await db
+        .collection("challengeLeaderboards")
+        .doc(challengeId)
+        .collection("entries")
+        .orderBy("totalPoints", "desc")
+        .limit(50)
+        .get();
+
+    leaderboard = challengeLeaderboardSnap.docs.map((d) => d.data());
 
     return {
         challenge,

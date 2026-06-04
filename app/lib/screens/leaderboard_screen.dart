@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../widgets/map_widget.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 class LeaderboardScreen extends StatelessWidget {
   const LeaderboardScreen({super.key});
@@ -8,6 +9,7 @@ class LeaderboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final locale = AppLocalizations.of(context)!;
 
     final leaderboard = [
       {"name": "Nico", "time": "12:34"},
@@ -43,7 +45,7 @@ class LeaderboardScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             Text(
-              "Aktuelles Segment",
+              locale.currentSegment,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: colorScheme.onSurface,
                 fontWeight: FontWeight.w600,

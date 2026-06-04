@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   final String challengeId;
@@ -44,7 +44,6 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
       segments = (data['segments'] ?? []) as List;
       leaderboard = (data['leaderboard'] ?? []) as List;
       loading = false;
-      print(currentSegment);
     });
   }
 
@@ -66,6 +65,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+    final locale = AppLocalizations.of(context)!;
 
     if (loading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -102,7 +102,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
           /// CURRENT SEGMENT
           Text(
-            "Aktuelles Segment",
+            locale.currentSegment,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.primary,
@@ -113,7 +113,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
           if (currentSegment == null)
             Text(
-              "Kein aktives Segment",
+              locale.noActiveSegment,
               style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
             )
           else
@@ -134,7 +134,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  "Woche ${i(currentSegment!['weekIndex']) + 1}",
+                  "${locale.week} ${i(currentSegment!['weekIndex']) + 1}",
                   style: TextStyle(
                     color: colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -146,7 +146,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
           /// SEGMENTS TITLE
           Text(
-            "Alle Segmente",
+            locale.allSegments,
             style: textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: colorScheme.primary,
@@ -180,10 +180,10 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 ),
                 subtitle: Text(
                   active
-                      ? "Aktiv"
+                      ? locale.active
                       : past
-                      ? "Abgeschlossen"
-                      : "Kommend",
+                      ? locale.finished
+                      : locale.upcoming,
                   style: TextStyle(
                     color: colorScheme.onSurface.withOpacity(0.7),
                   ),
@@ -221,7 +221,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
 
           if (leaderboard.isEmpty)
             Text(
-              "Noch keine Einträge",
+              locale.noEntries,
               style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
             )
           else
@@ -244,11 +244,11 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                     ),
                   ),
                   title: Text(
-                    s(data['userName']),
+                    s(data['userName']).isNotEmpty ? s(data['userName']) : "Anonymous",
                     style: TextStyle(color: colorScheme.onSurface),
                   ),
                   subtitle: Text(
-                    "${d(data['bestTime'])} sec",
+                      "${data['totalPoints']?.toInt() ?? 0} ${data['totalPoints'] == 1 ? locale.point : locale.points}",
                     style: TextStyle(
                       color: colorScheme.onSurface.withOpacity(0.7),
                     ),

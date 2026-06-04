@@ -208,6 +208,28 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Logout'**
   String get logout;
+
+  /// No description provided for @currentSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Segment'**
+  String get currentSegment;
+
+  String get noActiveSegment;
+
+  String get allSegments;
+
+  String get active;
+
+  String get finished;
+
+  String get upcoming;
+
+  String get noEntries;
+
+  String get week;
+
+  String get point;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

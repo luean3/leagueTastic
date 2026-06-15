@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -9,11 +11,53 @@ import '../services/auth_service.dart';
 import '../core/providers/theme_provider.dart';
 import '../core/providers/locale_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthService _authService = AuthService();
+  bool _isUploading = false;
 
   void _connectStrava() {
     StravaService().connect();
+  }
+
+  Future<void> _pickAndUploadImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 512,
+      maxHeight: 512,
+      imageQuality: 75,
+    );
+
+    if (image != null) {
+      setState(() {
+        _isUploading = true;
+      });
+
+      final String? downloadUrl = await _authService.updateProfilePicture(File(image.path));
+
+      setState(() {
+        _isUploading = false;
+      });
+
+      if (mounted) {
+        if (downloadUrl != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Profilbild erfolgreich aktualisiert!")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Fehler beim Hochladen des Bildes.")),
+          );
+        }
+      }
+    }
   }
 
   @override
@@ -22,14 +66,16 @@ class ProfileScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
 
-    final authService = AuthService();
-    final profile = authService.getUserProfile();
+    final profile = _authService.getUserProfile();
 
     String displayName = locale.guest;
+    String? photoUrl;
 
     if (profile != null) {
+      photoUrl = profile['photoURL'];
       if (profile['displayName'] != null &&
-          profile['displayName'] != "Kein Name gesetzt") {
+          profile['displayName'] != "Kein Name gesetzt" &&
+          profile['displayName'].toString().isNotEmpty) {
         displayName = profile['displayName'];
       } else {
         displayName = profile['email'] ?? locale.guest;
@@ -39,181 +85,212 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: Column(
-          children: [
-
-            // HEADER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: Text(
-                locale.profile,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // HEADER
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                color: AppColors.primary,
+                child: Text(
+                  locale.profile,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-            ),
 
-            const SizedBox(height: 30),
+              const SizedBox(height: 30),
 
-            // AVATAR
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: theme.cardColor,
-              child: Icon(
-                Icons.person,
-                size: 50,
-                color: colorScheme.onSurface,
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // NAME
-            Text(
-              displayName,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // LEVEL
-            Text(
-              "${locale.level}: 5",
-              style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.7),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // STATS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ProfileStat(
-                  title: locale.wins,
-                  value: "3",
-                ),
-                ProfileStat(
-                  title: locale.races,
-                  value: "12",
-                ),
-                ProfileStat(
-                  title: locale.points,
-                  value: "120",
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            // SETTINGS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // AVATAR
+              Stack(
                 children: [
-
-                  Text(
-                    locale.settings,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // THEME SWITCH
-                  Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, _) {
-                      final isDark =
-                          themeProvider.themeMode == ThemeMode.dark;
-
-                      return SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          locale.darkMode,
-                          style: TextStyle(
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundColor: theme.cardColor,
+                    backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
+                        ? NetworkImage(photoUrl)
+                        : null,
+                    child: (photoUrl == null || photoUrl.isEmpty)
+                        ? Icon(
+                            Icons.person,
+                            size: 50,
                             color: colorScheme.onSurface,
-                          ),
-                        ),
-                        value: isDark,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme(value);
-                        },
-                      );
-                    },
+                          )
+                        : null,
                   ),
-
-                  // LANGUAGE DROPDOWN
-                  Consumer<LocaleProvider>(
-                    builder: (context, localeProvider, _) {
-                      return DropdownButtonFormField<String>(
-                        value: localeProvider.locale.languageCode,
-
-                        decoration: InputDecoration(
-                          labelText: locale.language,
+                  if (_isUploading)
+                    const Positioned.fill(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      ),
+                    ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: _isUploading ? null : _pickAndUploadImage,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          shape: BoxShape.circle,
                         ),
-
-                        items: [
-                          DropdownMenuItem(
-                            value: "de",
-                            child: Text(locale.german),
-                          ),
-                          DropdownMenuItem(
-                            value: "en",
-                            child: Text(locale.english),
-                          ),
-                        ],
-
-                        onChanged: (value) {
-                          if (value != null) {
-                            localeProvider.setLocale(value);
-                          }
-                        },
-                      );
-                    },
+                        child: const Icon(
+                          Icons.edit,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
-            // STRAVA BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
+              // NAME
+              Text(
+                displayName,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
               ),
-              onPressed: _connectStrava,
-              child: Text(locale.connectStrava),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 10),
 
-            // LOGOUT BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
+              // LEVEL
+              Text(
+                "${locale.level}: 5",
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
-              onPressed: () {
-                authService.signOut();
-              },
-              child: Text(locale.logout),
-            ),
-          ],
+
+              const SizedBox(height: 30),
+
+              // STATS
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ProfileStat(
+                    title: locale.wins,
+                    value: "3",
+                  ),
+                  ProfileStat(
+                    title: locale.races,
+                    value: "12",
+                  ),
+                  ProfileStat(
+                    title: locale.points,
+                    value: "120",
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 30),
+
+              // SETTINGS
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      locale.settings,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    // THEME SWITCH
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, _) {
+                        final isDark = themeProvider.themeMode == ThemeMode.dark;
+
+                        return SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            locale.darkMode,
+                            style: TextStyle(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          value: isDark,
+                          onChanged: (value) {
+                            themeProvider.toggleTheme(value);
+                          },
+                        );
+                      },
+                    ),
+
+                    // LANGUAGE DROPDOWN
+                    Consumer<LocaleProvider>(
+                      builder: (context, localeProvider, _) {
+                        return DropdownButtonFormField<String>(
+                          value: localeProvider.locale.languageCode,
+                          decoration: InputDecoration(
+                            labelText: locale.language,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: "de",
+                              child: Text(locale.german),
+                            ),
+                            DropdownMenuItem(
+                              value: "en",
+                              child: Text(locale.english),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              localeProvider.setLocale(value);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // STRAVA BUTTON
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
+                ),
+                onPressed: _connectStrava,
+                child: Text(locale.connectStrava),
+              ),
+
+              const SizedBox(height: 20),
+
+              // LOGOUT BUTTON
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () {
+                  _authService.signOut();
+                },
+                child: Text(locale.logout),
+              ),
+              const SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );
@@ -245,11 +322,10 @@ class ProfileStat extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-
         Text(
           title,
           style: TextStyle(
-            color: colorScheme.onSurface.withOpacity(0.7),
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
       ],

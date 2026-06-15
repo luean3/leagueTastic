@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Stream für Auth-Status Änderungen
   Stream<User?> get userStatus => _auth.authStateChanges();
@@ -82,6 +88,26 @@ class AuthService {
       }
     } catch (e) {
       print("Fehler beim Aktualisieren des Namens: $e");
+    }
+  }
+
+  // Methode zum Aktualisieren des Profilbildes
+  Future<String?> updateProfilePicture(File imageFile) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return null;
+
+      final storageRef = _storage.ref().child('profile_pictures').child('${user.uid}.jpg');
+      await storageRef.putFile(imageFile);
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      await user.updatePhotoURL(downloadUrl);
+      await user.reload();
+
+      return downloadUrl;
+    } catch (e) {
+      print("Fehler beim Hochladen des Profilbildes: $e");
+      return null;
     }
   }
 

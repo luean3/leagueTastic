@@ -71,6 +71,18 @@ class AuthService {
     }
   }
 
+  // Methode zum Zurücksetzen des Passwords
+  Future<bool> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return true;
+    } catch (e) {
+      print("Fehler beim Zurücksetzen des Passworts: $e");
+      return false;
+    }
+  }
+
+  // Methode zum Abfragen des User Profils
   Map<String, dynamic>? getUserProfile() {
     final user = _auth.currentUser;
 

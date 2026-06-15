@@ -1,7 +1,9 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   // Stream für Auth-Status Änderungen
   Stream<User?> get userStatus => _auth.authStateChanges();
@@ -17,9 +19,13 @@ class AuthService {
         password: password,
       );
       
-      if (result.user != null) {
-        await result.user!.updateDisplayName(name);
-        await result.user!.reload();
+      final user = result.user;
+      if (user != null) {
+        await user.updateDisplayName(name);
+        await user.reload();
+
+        await _analytics.setUserId(id: user.uid);
+        await _analytics.logSignUp(signUpMethod: 'email');
       }
       
       return _auth.currentUser;
@@ -42,7 +48,14 @@ class AuthService {
           email: emailAddress,
           password: password
       );
-      return result.user;
+
+      final user = result.user;
+      if (user != null) {
+        await _analytics.setUserId(id: user.uid);
+        await _analytics.logLogin(loginMethod: 'email');
+      }
+
+      return user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
@@ -56,6 +69,7 @@ class AuthService {
   // Logout
   Future<void> signOut() async {
     await _auth.signOut();
+    await _analytics.setUserId(id: null);
   }
 
   // Methode zum Setzen/Aktualisieren des Display Namens

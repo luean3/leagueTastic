@@ -35,23 +35,23 @@ class _AuthScreenState extends State<AuthScreen> {
         user = await _authService.registerWithEmail(email, password, username);
       }
 
+      if (!mounted) return;
+
       setState(() => isLoading = false);
 
       if (user != null) {
         print("Erfolg! User: ${user.email}");
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.redAccent,
-              content: Text(
-                isLogin
-                    ? "Login fehlgeschlagen. Daten prüfen."
-                    : "Registrierung fehlgeschlagen. E-Mail evtl. schon vergeben.",
-              ),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              isLogin
+                  ? "Login fehlgeschlagen. Daten prüfen."
+                  : "Registrierung fehlgeschlagen. E-Mail evtl. schon vergeben.",
             ),
-          );
-        }
+          ),
+        );
       }
     }
   }

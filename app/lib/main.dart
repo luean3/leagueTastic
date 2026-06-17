@@ -23,6 +23,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// Root der Flutter-App mit Theme, Locale und Auth-Gate.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -66,7 +67,6 @@ class _MyAppState extends State<MyApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
 
-            // START SCREEN
             home: const AuthWrapper(),
           );
         },
@@ -75,6 +75,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+/// Schaltet abhängig vom Firebase-Auth-Status zwischen Login und App-Navigation.
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
 

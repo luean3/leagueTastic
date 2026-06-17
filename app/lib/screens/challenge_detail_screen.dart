@@ -11,6 +11,7 @@ import '../widgets/leaderboard_entry_tile.dart';
 import '../widgets/segment_card.dart';
 import 'segment_detail_screen.dart';
 
+/// Detailseite einer Challenge mit aktuellem Segment, Segmentplan und Rangliste.
 class ChallengeDetailScreen extends StatefulWidget {
   final String challengeId;
 
@@ -115,7 +116,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.12),
+              color: colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
@@ -138,7 +139,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           if (currentSegment == null)
             Text(
               locale.noActiveSegment,
-              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             )
           else
             CurrentSegmentCard(
@@ -176,7 +177,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           if (leaderboard.isEmpty)
             Text(
               locale.noEntries,
-              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             )
           else
             ...leaderboard.asMap().entries.map((entry) {
@@ -190,7 +191,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 title: userName.isNotEmpty ? userName : "Anonymous",
                 subtitle:
                     "${totalPoints?.toInt() ?? 0} ${totalPoints == 1 ? locale.point : locale.points}",
-                backgroundColor: colorScheme.primary.withOpacity(0.12),
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
               );
             }),
         ],

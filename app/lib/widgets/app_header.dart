@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 
+/// Einheitlicher Brand-Header für Hauptseiten.
 class AppHeader extends StatelessWidget {
   final String title;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Kompakte Kennzahlenbox für Zeiten, Ränge, Punkte und Versuche.
 class StatBox extends StatelessWidget {
   final String label;
   final String value;
@@ -29,7 +30,7 @@ class StatBox extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(
-        color: backgroundColor ?? colorScheme.primary.withOpacity(0.12),
+        color: backgroundColor ?? colorScheme.primary.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Column(
@@ -48,7 +49,7 @@ class StatBox extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: labelFontSize,
-              color: colorScheme.onSurface.withOpacity(0.65),
+              color: colorScheme.onSurface.withValues(alpha: 0.65),
             ),
           ),
         ],

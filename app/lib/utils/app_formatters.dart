@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'value_parser.dart';
 
+/// Gemeinsame Formatter für Werte, die aus Firestore/Functions typisiert
+/// oder als String zurückkommen können.
 class AppFormatters {
   const AppFormatters._();
 

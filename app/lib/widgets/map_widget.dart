@@ -1,10 +1,11 @@
+import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cache/flutter_map_cache.dart';
-import 'package:dio_cache_interceptor/dio_cache_interceptor.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:latlong2/latlong.dart';
 
+/// Zeigt die Strava-Route eines Segments auf einer OpenStreetMap-Karte.
 class StravaMapWidget extends StatefulWidget {
   final String encodedPolyline;
 
@@ -15,94 +16,79 @@ class StravaMapWidget extends StatefulWidget {
 }
 
 class _StravaMapWidgetState extends State<StravaMapWidget> {
-  List<LatLng> routePoints = [];
-  bool isLoading = true;
+  late final List<LatLng> _routePoints;
 
   @override
   void initState() {
     super.initState();
-    _decodePolyline();
+    _routePoints = _decodePolyline(widget.encodedPolyline);
   }
 
-  void _decodePolyline() {
-    // 1. Initialize the decoder
-    PolylinePoints polylinePoints = PolylinePoints();
+  List<LatLng> _decodePolyline(String encodedPolyline) {
+    final decodedPoints = PolylinePoints().decodePolyline(encodedPolyline);
 
-    // 2. Decode the string
-    List<PointLatLng> result = polylinePoints.decodePolyline(widget.encodedPolyline);
-
-    // 3. Convert flutter_polyline_points to latlong2 LatLng objects
-    if (result.isNotEmpty) {
-      routePoints = result.map((PointLatLng point) {
-        return LatLng(point.latitude, point.longitude);
-      }).toList();
-    }
-
-    // 4. Update state to stop loading
-    setState(() {
-      isLoading = false;
-    });
+    return decodedPoints.map((point) {
+      return LatLng(point.latitude, point.longitude);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (routePoints.isEmpty) {
+    if (_routePoints.isEmpty) {
       return const Center(child: Text("No GPS data for this activity."));
     }
 
-    // Calculate the camera bounds to fit the entire route
-    final bounds = LatLngBounds.fromPoints(routePoints);
+    final bounds = LatLngBounds.fromPoints(_routePoints);
 
     return FlutterMap(
       options: MapOptions(
-        // Auto-zoom and pan to fit the route with some padding
         initialCameraFit: CameraFit.bounds(
           bounds: bounds,
-          padding: const EdgeInsets.all(32.0),
+          padding: const EdgeInsets.all(32),
         ),
         interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all, // Enables pan, zoom, rotate
+          flags: InteractiveFlag.all,
         ),
       ),
       children: [
-        // The OpenStreetMap Map Tiles
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.leagueTastic.app',
           tileProvider: CachedTileProvider(
-            maxStale: const Duration(days: 30), store: MemCacheStore(), // Keep tiles for 30 days
+            maxStale: const Duration(days: 30),
+            store: MemCacheStore(),
           ),
         ),
-        // The Strava Route Line
         PolylineLayer(
           polylines: [
             Polyline(
-              points: routePoints,
-              strokeWidth: 4.0,
+              points: _routePoints,
+              strokeWidth: 4,
               color: Colors.blueAccent,
             ),
           ],
         ),
-        // Start and End Markers
         MarkerLayer(
           markers: [
-            // Start Marker (Green Play)
             Marker(
-              point: routePoints.first,
+              point: _routePoints.first,
               width: 40,
               height: 40,
-              child: const Icon(Icons.play_circle_fill, color: Colors.green, size: 30),
+              child: const Icon(
+                Icons.play_circle_fill,
+                color: Colors.green,
+                size: 30,
+              ),
             ),
-            // End Marker (Red Flag)
             Marker(
-              point: routePoints.last,
+              point: _routePoints.last,
               width: 40,
               height: 40,
-              child: const Icon(Icons.flag_circle, color: Colors.red, size: 30),
+              child: const Icon(
+                Icons.flag_circle,
+                color: Colors.red,
+                size: 30,
+              ),
             ),
           ],
         ),

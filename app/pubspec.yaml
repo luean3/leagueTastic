@@ -42,6 +42,7 @@ dependencies:
   latlong2: ^0.9.1           # required by flutter_map for coordinates
   flutter_polyline_points: ^2.0.0 # decode polyline
   flutter_map_cache: ^1.5.2
+  dio_cache_interceptor: ^3.5.1
   dio_cache_interceptor_file_store: ^1.2.3
   firebase_auth: ^6.4.0
   cloud_firestore: ^6.3.0

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Kompakte Challenge-Daten für Listenansichten.
 class ChallengeSummary {
   final String id;
   final String name;

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../utils/value_parser.dart';
 
+/// Stellt User-bezogene Firestore-Daten bereit, die nicht direkt aus Auth kommen.
 class UserRepository {
   final FirebaseFirestore _firestore;
 

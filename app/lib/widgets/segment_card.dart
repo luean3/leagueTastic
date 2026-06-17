@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/value_parser.dart';
 
+/// Statuskarte für ein Challenge-Segment.
 class SegmentCard extends StatelessWidget {
   final Map<String, dynamic> segment;
   final String activeLabel;
@@ -52,7 +53,7 @@ class SegmentCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
@@ -66,7 +67,7 @@ class SegmentCard extends StatelessWidget {
         ),
         subtitle: Text(
           _statusText(active: active, past: past, upcoming: upcoming),
-          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
         trailing: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

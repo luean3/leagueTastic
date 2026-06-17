@@ -1,3 +1,4 @@
+/// Persönliche Kennzahlen für das aktuell aktive Segment einer Challenge.
 class SegmentPerformance {
   final String segmentId;
   final int attempts;

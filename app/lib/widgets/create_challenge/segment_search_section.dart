@@ -5,6 +5,7 @@ import '../../models/explore_segment.dart';
 import 'segment_tile.dart';
 import 'selected_segments_wrap.dart';
 
+/// Segment-Auswahlbereich mit Umkreissuche, Filterfeld und Auswahlchips.
 class SegmentSearchSection extends StatelessWidget {
   final TextEditingController searchController;
   final List<ExploreSegment> availableSegments;
@@ -61,7 +62,7 @@ class SegmentSearchSection extends StatelessWidget {
             Text(
               locale.selectedSegmentCount(selectedSegments.length),
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.65),
+                color: colorScheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
           ],
@@ -129,7 +130,7 @@ class SegmentSearchSection extends StatelessWidget {
               locale.noSegmentsLoaded,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.65),
+                color: colorScheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
           )
@@ -145,7 +146,7 @@ class SegmentSearchSection extends StatelessWidget {
               locale.noMatchingSegmentFound,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.65),
+                color: colorScheme.onSurface.withValues(alpha: 0.65),
               ),
             ),
           )

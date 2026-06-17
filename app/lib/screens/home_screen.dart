@@ -6,6 +6,7 @@ import '../widgets/app_header.dart';
 import '../widgets/challenge_card.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+/// Startseite mit den Challenges, denen der aktuelle User beigetreten ist.
 class HomeScreen extends StatelessWidget {
   HomeScreen({
     super.key,
@@ -35,7 +36,7 @@ class HomeScreen extends StatelessWidget {
             Text(
               locale.rideCompeteWin,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
 
@@ -83,7 +84,7 @@ class HomeScreen extends StatelessWidget {
                       child: Text(
                         locale.noJoinedChallenges,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     );

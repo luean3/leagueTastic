@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Einheitliche Abschnittsüberschrift für Detailseiten.
 class SectionTitle extends StatelessWidget {
   final String title;
 

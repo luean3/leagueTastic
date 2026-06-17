@@ -4,6 +4,7 @@ import 'package:leaguetastic/l10n/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import '../models/challenge_summary.dart';
 
+/// Listeneintrag für die Challenge-Suche inklusive Join-Status und Aktion.
 class ChallengeSearchResultTile extends StatelessWidget {
   final ChallengeSummary challenge;
   final bool alreadyJoined;
@@ -35,7 +36,7 @@ class ChallengeSearchResultTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.onSurface.withOpacity(0.08)),
+            border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,7 +59,7 @@ class ChallengeSearchResultTile extends StatelessWidget {
                         vertical: 5,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.12),
+                        color: AppColors.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(999),
                       ),
                       child: Text(
@@ -77,7 +78,7 @@ class ChallengeSearchResultTile extends StatelessWidget {
                 Text(
                   challenge.description,
                   style: TextStyle(
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
               const SizedBox(height: 12),
@@ -86,13 +87,13 @@ class ChallengeSearchResultTile extends StatelessWidget {
                   Icon(
                     Icons.calendar_today,
                     size: 16,
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     '${_formatDate(challenge.startDate)} - ${_formatDate(challenge.endDate)}',
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),
@@ -104,13 +105,13 @@ class ChallengeSearchResultTile extends StatelessWidget {
                   Icon(
                     Icons.route,
                     size: 16,
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     locale.segments(challenge.segmentCount),
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.6),
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),

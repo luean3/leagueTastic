@@ -4,6 +4,7 @@ import 'package:leaguetastic/screens/challenge_detail_screen.dart';
 
 import '../models/challenge_summary.dart';
 
+/// Karte für eine Challenge in der persönlichen Startseitenliste.
 class ChallengeCard extends StatelessWidget {
   final ChallengeSummary challenge;
 
@@ -43,7 +44,7 @@ class ChallengeCard extends StatelessWidget {
 
               Text(
                 challenge.description,
-                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+                style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
 
               const SizedBox(height: 6),
@@ -51,15 +52,15 @@ class ChallengeCard extends StatelessWidget {
               Text(
                 "Start: ${_formatDateTime(challenge.startDate)}",
                 style: TextStyle(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
 
               Text(
-                "Ende: ${_formatDateTime(challenge.startDate)}",
+                "Ende: ${_formatDateTime(challenge.endDate)}",
                 style: TextStyle(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),
@@ -67,7 +68,7 @@ class ChallengeCard extends StatelessWidget {
               Text(
                 "Segmente: ${challenge.segmentCount}",
                 style: TextStyle(
-                  color: colorScheme.onSurface.withOpacity(0.6),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   fontSize: 12,
                 ),
               ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/explore_segment.dart';
 
+/// Auswählbarer Listeneintrag für ein vorgeschlagenes Strava-Segment.
 class SegmentTile extends StatelessWidget {
   final ExploreSegment segment;
   final bool selected;
@@ -46,13 +47,13 @@ class SegmentTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: selected
-              ? AppColors.primary.withOpacity(0.12)
+              ? AppColors.primary.withValues(alpha: 0.12)
               : theme.cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
                 ? AppColors.primary
-                : colorScheme.onSurface.withOpacity(0.08),
+                : colorScheme.onSurface.withValues(alpha: 0.08),
           ),
         ),
         child: Row(
@@ -61,7 +62,7 @@ class SegmentTile extends StatelessWidget {
               selected ? Icons.check_circle : Icons.radio_button_unchecked,
               color: selected
                   ? AppColors.primary
-                  : colorScheme.onSurface.withOpacity(0.5),
+                  : colorScheme.onSurface.withValues(alpha: 0.5),
             ),
 
             const SizedBox(width: 12),
@@ -84,7 +85,7 @@ class SegmentTile extends StatelessWidget {
                     Text(
                       _subtitle(),
                       style: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.65),
+                        color: colorScheme.onSurface.withValues(alpha: 0.65),
                         fontSize: 13,
                       ),
                     ),

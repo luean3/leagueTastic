@@ -12,6 +12,7 @@ import '../widgets/common/stat_box.dart';
 import '../widgets/leaderboard_entry_tile.dart';
 import '../widgets/map_widget.dart';
 
+/// Detailseite eines einzelnen Challenge-Segments samt persönlichem Ergebnis.
 class SegmentDetailScreen extends StatefulWidget {
   final String challengeId;
   final Map<String, dynamic> segment;
@@ -127,7 +128,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                       Text(
                         "${locale.segmentId}: $segmentId",
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                       if (widget.segment['weekIndex'] != null) ...[
@@ -135,7 +136,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                         Text(
                           "${locale.week} ${ValueParser.integer(widget.segment['weekIndex']) + 1}",
                           style: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ],
@@ -190,7 +191,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                   Text(
                     locale.noSegmentAttempts,
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.7),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   )
                 else
@@ -203,7 +204,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                   Text(
                     locale.noSegmentLeaderboardEntries,
                     style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.7),
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   )
                 else
@@ -275,12 +276,12 @@ class _EffortTile extends StatelessWidget {
         ),
         subtitle: Text(
           dateText,
-          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
         trailing: distance != null
             ? Text(
                 AppFormatters.distance(distance),
-                style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+                style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
               )
             : null,
       ),

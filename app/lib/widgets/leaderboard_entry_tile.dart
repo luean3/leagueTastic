@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Wiederverwendbarer Leaderboard-Eintrag mit Rang, Name und Zusatzwerten.
 class LeaderboardEntryTile extends StatelessWidget {
   final String rankText;
   final String title;
@@ -35,7 +36,7 @@ class LeaderboardEntryTile extends StatelessWidget {
         title: Text(title, style: TextStyle(color: colorScheme.onSurface)),
         subtitle: Text(
           subtitle,
-          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
         trailing: trailingText == null
             ? null

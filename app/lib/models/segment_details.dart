@@ -1,3 +1,4 @@
+/// Alle Daten, die der Segment-Detail-Screen für eine Challenge benötigt.
 class SegmentDetails {
   final String? athleteId;
   final Map<String, dynamic>? myResult;

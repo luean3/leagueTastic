@@ -20,6 +20,8 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
+    // Die Screens bleiben im PageView, damit Tab-Wechsel und Rücksprünge die
+    // Bottom-Navigation nicht aus dem Widget-Baum entfernen.
     screens = [
       HomeScreen(),
       const ChallengeSearchScreen(),
@@ -68,7 +70,7 @@ class _MainNavigationState extends State<MainNavigation> {
         currentIndex: currentIndex,
         onTap: onTabTapped,
         selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurface.withOpacity(0.5),
+        unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.5),
         showSelectedLabels: false,
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,

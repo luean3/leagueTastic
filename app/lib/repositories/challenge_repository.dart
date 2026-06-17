@@ -4,6 +4,10 @@ import '../models/challenge_summary.dart';
 
 enum JoinChallengeResult { joined, alreadyJoined }
 
+/// Kapselt Firestore-Zugriffe rund um Challenges und Mitgliedschaften.
+///
+/// Screens sollen damit nur noch Streams/Ergebnisse konsumieren und keine
+/// Collection-Namen oder Join-Regeln kennen müssen.
 class ChallengeRepository {
   final FirebaseFirestore _firestore;
 
@@ -44,6 +48,7 @@ class ChallengeRepository {
       final challenges = <ChallengeSummary>[];
       final ids = challengeIds.toList();
 
+      // Firestore erlaubt bei whereIn maximal 10 Dokument-IDs pro Query.
       for (var index = 0; index < ids.length; index += 10) {
         final chunk = ids.skip(index).take(10).toList();
 

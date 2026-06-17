@@ -3,6 +3,7 @@ import 'package:leaguetastic/core/theme/app_colors.dart';
 import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+/// Login- und Registrierungsformular für Firebase-Auth.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -27,19 +28,15 @@ class _AuthScreenState extends State<AuthScreen> {
 
       setState(() => isLoading = true);
 
-      dynamic user;
+      final user = isLogin
+          ? await _authService.loginWithEmail(email, password)
+          : await _authService.registerWithEmail(email, password, username);
 
-      if (isLogin) {
-        user = await _authService.loginWithEmail(email, password);
-      } else {
-        user = await _authService.registerWithEmail(email, password, username);
-      }
+      if (!mounted) return;
 
       setState(() => isLoading = false);
 
-      if (user != null) {
-        print("Erfolg! User: ${user.email}");
-      } else {
+      if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
@@ -109,11 +106,11 @@ class _AuthScreenState extends State<AuthScreen> {
                           decoration: InputDecoration(
                             labelText: "Benutzername",
                             labelStyle: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.7),
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color: colorScheme.onSurface.withOpacity(0.2),
+                                color: colorScheme.onSurface.withValues(alpha: 0.2),
                               ),
                             ),
                           ),
@@ -131,11 +128,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         decoration: InputDecoration(
                           labelText: "E-Mail",
                           labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
+                              color: colorScheme.onSurface.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -155,11 +152,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         decoration: InputDecoration(
                           labelText: "Passwort",
                           labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
+                              color: colorScheme.onSurface.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -206,7 +203,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ? "Noch kein Konto? Jetzt registrieren"
                               : "Bereits ein Konto? Hier einloggen",
                           style: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ),

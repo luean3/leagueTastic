@@ -11,7 +11,10 @@ import '../widgets/app_header.dart';
 import '../widgets/create_challenge/challenge_form_section.dart';
 import '../widgets/create_challenge/segment_search_section.dart';
 
+/// Seite zum Erstellen einer neuen Challenge aus Strava-Segmenten.
 class CreateScreen extends StatefulWidget {
+  /// Wird nach erfolgreichem Speichern ausgelöst, damit der Parent die
+  /// bestehende Navigation weiterverwenden kann.
   final VoidCallback? onChallengeCreated;
 
   const CreateScreen({super.key, this.onChallengeCreated});
@@ -211,6 +214,7 @@ class _CreateScreenState extends State<CreateScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text(locale.challengeCreated)));
 
+      // Kein eigener HomeScreen-Push: Sonst ginge die Bottom-Navigation verloren.
       setState(_resetForm);
       widget.onChallengeCreated?.call();
     } catch (e) {
@@ -260,7 +264,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     Text(
                       locale.createChallengeSubtitle,
                       style: TextStyle(
-                        color: colorScheme.onSurface.withOpacity(0.65),
+                        color: colorScheme.onSurface.withValues(alpha: 0.65),
                       ),
                     ),
 
@@ -295,9 +299,9 @@ class _CreateScreenState extends State<CreateScreen> {
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         disabledBackgroundColor: colorScheme.onSurface
-                            .withOpacity(0.12),
+                            .withValues(alpha: 0.12),
                         disabledForegroundColor: colorScheme.onSurface
-                            .withOpacity(0.45),
+                            .withValues(alpha: 0.45),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),

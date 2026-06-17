@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../core/theme/app_colors.dart';
 import '../services/strava_service.dart';
 import '../services/auth_service.dart';
 
 import '../core/providers/theme_provider.dart';
 import '../core/providers/locale_provider.dart';
+import '../widgets/app_header.dart';
 
+/// Profil- und Einstellungsseite des angemeldeten Users.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -28,11 +29,11 @@ class ProfileScreen extends StatelessWidget {
     String displayName = locale.guest;
 
     if (profile != null) {
-      if (profile['displayName'] != null &&
-          profile['displayName'] != "Kein Name gesetzt") {
-        displayName = profile['displayName'];
+      if (profile.displayName != null &&
+          profile.displayName != "Kein Name gesetzt") {
+        displayName = profile.displayName!;
       } else {
-        displayName = profile['email'] ?? locale.guest;
+        displayName = profile.email ?? locale.guest;
       }
     }
 
@@ -42,21 +43,7 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
 
-            // HEADER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: Text(
-                locale.profile,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            AppHeader(title: locale.profile),
 
             const SizedBox(height: 30),
 
@@ -89,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
             Text(
               "${locale.level}: 5",
               style: TextStyle(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
 
@@ -159,7 +146,7 @@ class ProfileScreen extends StatelessWidget {
                   Consumer<LocaleProvider>(
                     builder: (context, localeProvider, _) {
                       return DropdownButtonFormField<String>(
-                        value: localeProvider.locale.languageCode,
+                        initialValue: localeProvider.locale.languageCode,
 
                         decoration: InputDecoration(
                           labelText: locale.language,
@@ -220,6 +207,7 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+/// Kleine Profilkennzahl wie Siege, Rennen oder Punkte.
 class ProfileStat extends StatelessWidget {
   final String title;
   final String value;
@@ -249,7 +237,7 @@ class ProfileStat extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: colorScheme.onSurface.withOpacity(0.7),
+            color: colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
       ],

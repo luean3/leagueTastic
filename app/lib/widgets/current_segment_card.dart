@@ -6,6 +6,7 @@ import '../utils/app_formatters.dart';
 import '../utils/value_parser.dart';
 import 'common/stat_box.dart';
 
+/// Karte für das aktuell aktive Segment mit den persönlichen Kennzahlen.
 class CurrentSegmentCard extends StatelessWidget {
   final Map<String, dynamic> segment;
   final SegmentPerformance? performance;
@@ -29,7 +30,7 @@ class CurrentSegmentCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.15),
+          color: Colors.green.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -46,7 +47,7 @@ class CurrentSegmentCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               "${locale.week} ${ValueParser.integer(segment['weekIndex']) + 1}",
-              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: 14),
             Row(
@@ -55,7 +56,7 @@ class CurrentSegmentCard extends StatelessWidget {
                   child: StatBox(
                     label: locale.my_time,
                     value: AppFormatters.duration(performance?.bestTime),
-                    backgroundColor: colorScheme.surface.withOpacity(0.75),
+                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,
@@ -71,7 +72,7 @@ class CurrentSegmentCard extends StatelessWidget {
                   child: StatBox(
                     label: locale.attempts,
                     value: '${performance?.attempts ?? 0}',
-                    backgroundColor: colorScheme.surface.withOpacity(0.75),
+                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,
@@ -89,7 +90,7 @@ class CurrentSegmentCard extends StatelessWidget {
                     value: performance?.rank != null
                         ? '#${performance!.rank}'
                         : '-',
-                    backgroundColor: colorScheme.surface.withOpacity(0.75),
+                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,

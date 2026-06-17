@@ -1,5 +1,6 @@
 import 'value_parser.dart';
 
+/// Einheitlicher Zugriff auf Segment-Felder mit alten und neuen Key-Namen.
 class SegmentFields {
   const SegmentFields._();
 

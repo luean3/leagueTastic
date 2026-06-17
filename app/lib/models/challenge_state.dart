@@ -1,3 +1,7 @@
+/// Ergebnis der Cloud Function `getCurrentChallengeState`.
+///
+/// Enthält bewusst Maps, weil die Function bestehende Segment- und
+/// Leaderboard-Payloads bereits UI-nah zusammenstellt.
 class ChallengeState {
   final Map<String, dynamic> challenge;
   final Map<String, dynamic>? currentSegment;

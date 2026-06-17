@@ -6,6 +6,9 @@ import '../utils/segment_fields.dart';
 import '../utils/value_parser.dart';
 import 'user_repository.dart';
 
+/// Lädt persönliche Segment-Ergebnisse, Versuche und Leaderboard-Einträge.
+///
+/// Die Repository-Grenze hält Firestore-Details aus den Detail-Screens heraus.
 class SegmentResultRepository {
   final FirebaseFirestore _firestore;
   final UserRepository _userRepository;
@@ -59,6 +62,7 @@ class SegmentResultRepository {
       return {'id': doc.id, ...doc.data()};
     }).toList();
 
+    // Lokal sortieren, damit kein zusätzlicher Firestore-Index nötig ist.
     efforts.sort((a, b) {
       final aTime = ValueParser.integer(a['activityStartDateMs']);
       final bTime = ValueParser.integer(b['activityStartDateMs']);

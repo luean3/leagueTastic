@@ -1,3 +1,4 @@
+/// Segment-Vorschau aus der Strava-Explore-Suche.
 class ExploreSegment {
   final String id;
   final String name;

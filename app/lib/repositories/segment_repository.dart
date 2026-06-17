@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/explore_segment.dart';
 
+/// Lädt Explore-Segmentdaten aus Firestore für die Challenge-Erstellung.
 class SegmentRepository {
   final FirebaseFirestore _firestore;
 
@@ -17,6 +18,7 @@ class SegmentRepository {
 
     final segments = <ExploreSegment>[];
 
+    // Firestore erlaubt bei whereIn maximal 10 Dokument-IDs pro Query.
     for (int i = 0; i < segmentIds.length; i += 10) {
       final chunk = segmentIds.skip(i).take(10).toList();
 

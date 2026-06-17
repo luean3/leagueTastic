@@ -8,6 +8,7 @@ import '../widgets/app_header.dart';
 import '../widgets/challenge_search_result_tile.dart';
 import 'challenge_detail_screen.dart';
 
+/// Such- und Beitrittsseite für öffentlich verfügbare Challenges.
 class ChallengeSearchScreen extends StatefulWidget {
   const ChallengeSearchScreen({super.key});
 
@@ -86,7 +87,7 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
         body: Center(
           child: Text(
             locale.notLoggedIn,
-            style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
           ),
         ),
       );
@@ -116,13 +117,13 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(
-                      color: colorScheme.onSurface.withOpacity(0.1),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
@@ -162,7 +163,7 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
                       child: Text(
                         locale.noChallengesAvailable,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     );
@@ -179,7 +180,7 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
                       child: Text(
                         locale.noMatchingChallengeFound,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     );

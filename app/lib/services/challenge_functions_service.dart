@@ -2,6 +2,9 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 import '../models/challenge_state.dart';
 
+/// Dünner Wrapper um Firebase Callable Functions für Challenge-Flows.
+///
+/// So bleiben Funktionsnamen und Payload-Formate an einer zentralen Stelle.
 class ChallengeFunctionsService {
   final FirebaseFunctions _functions;
 

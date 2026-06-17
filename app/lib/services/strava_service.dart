@@ -1,5 +1,6 @@
 import 'package:url_launcher/url_launcher.dart';
 
+/// Startet den OAuth-Verbindungsfluss zu Strava.
 class StravaService {
   static const String clientId = "86073";
   static const String redirectUri =

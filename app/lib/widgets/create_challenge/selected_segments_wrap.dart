@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/explore_segment.dart';
 
+/// Zeigt die aktuell gewählten Segmente als entfernbare Chips.
 class SelectedSegmentsWrap extends StatelessWidget {
   final List<ExploreSegment> selectedSegments;
   final void Function(ExploreSegment segment) onRemove;
@@ -30,7 +31,7 @@ class SelectedSegmentsWrap extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               onDeleted: () => onRemove(selectedSegments[i]),
-              backgroundColor: AppColors.primary.withOpacity(0.12),
+              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
             ),
           ),
       ],

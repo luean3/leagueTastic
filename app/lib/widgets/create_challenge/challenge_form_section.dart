@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+/// Formularfelder für Name, Beschreibung und Startdatum einer Challenge.
 class ChallengeFormSection extends StatelessWidget {
   final TextEditingController nameController;
   final TextEditingController descriptionController;

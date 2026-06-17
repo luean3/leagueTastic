@@ -1,4 +1,4 @@
-import { onRequest } from "firebase-functions/https";
+import { onCall, HttpsError } from "firebase-functions/v2/https";
 import * as admin from "firebase-admin";
 import crypto from "crypto";
 import { refreshAccessToken } from "../services/stravaService";
@@ -13,48 +13,51 @@ function hash(bounds: string, activityType: string) {
         .digest("hex");
 }
 
-export const exploreSegments = onRequest({
-    secrets: [STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET],
-}, async (req, res) => {
-    try {
-        const bounds = req.query.bounds as string;
-        const activityType = (req.query.activity_type as string) || "riding";
-        const athleteId = req.query.athleteId as string;
+export const exploreSegments = onCall(
+    {
+        secrets: [STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET],
+    },
+    async (request) => {
+        const uid = request.auth?.uid;
 
-        if (!bounds || !athleteId) {
-            res.status(400).send("bounds + athleteId required");
-            return;
+        if (!uid) {
+            throw new HttpsError("unauthenticated", "User must be authenticated");
+        }
+
+        const bounds = request.data.bounds as string;
+        const activityType = (request.data.activityType as string) || "riding";
+
+        if (!bounds) {
+            throw new HttpsError("invalid-argument", "bounds required");
         }
 
         const queryId = hash(bounds, activityType);
 
-        // 1. CACHE CHECK (explore cache)
-        const cached = await db.collection("segment_explore_queries").doc(queryId).get();
+        const cached = await db
+            .collection("segment_explore_queries")
+            .doc(queryId)
+            .get();
 
         if (cached.exists) {
-            res.json({
+            return {
                 source: "cache",
-                segmentIds: cached.data()?.segmentIds ?? []
-            });
-            return;
+                segmentIds: cached.data()?.segmentIds ?? [],
+            };
         }
 
-        // 2. USER
         const userSnap = await db
             .collection("strava-user")
-            .where("athleteId", "==", Number(athleteId))
+            .where("userId", "==", uid)
             .limit(1)
             .get();
 
         if (userSnap.empty) {
-            res.status(404).send("user not found");
-            return;
+            throw new HttpsError("not-found", "Strava user not found");
         }
 
         const userDoc = userSnap.docs[0];
         let { accessToken, refreshToken } = userDoc.data();
 
-        // 3. STRAVA CALL
         let response = await fetch(
             `https://www.strava.com/api/v3/segments/explore?bounds=${bounds}&activity_type=${activityType}`,
             {
@@ -64,7 +67,6 @@ export const exploreSegments = onRequest({
             }
         );
 
-        // 4. REFRESH
         if (response.status === 401) {
             accessToken = await refreshAccessToken(userDoc.id, refreshToken);
 
@@ -79,59 +81,55 @@ export const exploreSegments = onRequest({
         }
 
         if (!response.ok) {
-            res.status(500).send(await response.text());
-            return;
+            throw new HttpsError(
+                "internal",
+                await response.text()
+            );
         }
 
         const data: any = await response.json();
         const segments = data.segments ?? [];
 
         const batch = db.batch();
-        const segmentIds: number[] = [];
+        const segmentIds: string[] = [];
 
-        // 5. STORE EXPLORE DATA (LIGHTWEIGHT)
         for (const s of segments) {
-            segmentIds.push(s.id);
+            const segmentId = String(s.id);
+            segmentIds.push(segmentId);
 
-            const ref = db.collection("segment_explore").doc(String(s.id));
+            const ref = db.collection("segment_explore").doc(segmentId);
 
-            batch.set(ref, {
-                id: s.id,
-                name: s.name ?? null,
-
-                distance: s.distance ?? null,
-                avg_grade: s.avg_grade ?? null,
-                max_grade: s.maximum_grade ?? s.max_grade ?? null,
-
-                climb_category: s.climb_category ?? null,
-
-                start_latlng: s.start_latlng ?? null,
-                end_latlng: s.end_latlng ?? null,
-
-                city: s.city ?? null,
-                points: s.points ?? null,
-
-                updatedAt: Date.now()
-            }, { merge: true });
+            batch.set(
+                ref,
+                {
+                    id: segmentId,
+                    name: s.name ?? null,
+                    distance: s.distance ?? null,
+                    avg_grade: s.avg_grade ?? null,
+                    max_grade: s.maximum_grade ?? s.max_grade ?? null,
+                    climb_category: s.climb_category ?? null,
+                    start_latlng: s.start_latlng ?? null,
+                    end_latlng: s.end_latlng ?? null,
+                    city: s.city ?? null,
+                    points: s.points ?? null,
+                    updatedAt: Date.now(),
+                },
+                { merge: true }
+            );
         }
 
-        // 6. CACHE QUERY
         batch.set(db.collection("segment_explore_queries").doc(queryId), {
             bounds,
             activityType,
             segmentIds,
-            createdAt: Date.now()
+            createdAt: Date.now(),
         });
 
         await batch.commit();
 
-        res.json({
+        return {
             source: "api",
-            segmentIds
-        });
-
-    } catch (err: any) {
-        console.error(err);
-        res.status(500).send(err.message);
+            segmentIds,
+        };
     }
-});
+);

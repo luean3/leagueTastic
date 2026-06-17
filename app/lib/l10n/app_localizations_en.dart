@@ -66,29 +66,196 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
-  String get currentSegment => "Current Segment";
+  String get my_time => 'My time';
 
   @override
-  String get active => "Active";
+  String get attempts => 'Attempts';
 
   @override
-  String get allSegments => "All Segments";
+  String get rank => 'Rank';
 
   @override
-  String get finished => "Finished";
+  String get currentSegment => 'Current segment';
 
   @override
-  String get noActiveSegment => "No active Segment";
+  String get noActiveSegment => 'No active segment';
 
   @override
-  String get noEntries => "No Entries yet";
+  String get week => 'Week';
 
   @override
-  String get upcoming => "Upcoming";
+  String get allSegments => 'All segments';
 
   @override
-  String get point => "Point";
+  String get active => 'Active';
 
   @override
-  String get week => "Week";
+  String get finished => 'Finished';
+
+  @override
+  String get upcoming => 'Upcoming';
+
+  @override
+  String get noEntries => 'No entries yet';
+
+  @override
+  String get point => 'point';
+
+  @override
+  String get myTime => 'My time';
+
+  @override
+  String get segment => 'Segment';
+
+  @override
+  String get segmentId => 'Segment ID';
+
+  @override
+  String get route => 'Route';
+
+  @override
+  String get myResult => 'My result';
+
+  @override
+  String get bestTime => 'Best time';
+
+  @override
+  String get myAttempts => 'My attempts';
+
+  @override
+  String get noSegmentAttempts => 'You do not have any attempts for this segment yet.';
+
+  @override
+  String get segmentLeaderboard => 'Segment leaderboard';
+
+  @override
+  String get noSegmentLeaderboardEntries => 'There are no entries for this segment yet.';
+
+  @override
+  String get anonymous => 'Anonymous';
+
+  @override
+  String get myChallenges => 'My Challenges';
+
+  @override
+  String get rideCompeteWin => 'Ride. Compete. Win.';
+
+  @override
+  String get errorLoadingChallenges => 'Error loading challenges';
+
+  @override
+  String get noJoinedChallenges => 'You have not joined any challenges yet';
+
+  @override
+  String get findChallenges => 'Find Challenges';
+
+  @override
+  String get searchChallenge => 'Search challenge';
+
+  @override
+  String get notLoggedIn => 'You are not logged in';
+
+  @override
+  String get noChallengesAvailable => 'No challenges available';
+
+  @override
+  String get noMatchingChallengeFound => 'No matching challenge found';
+
+  @override
+  String get alreadyJoined => 'Joined';
+
+  @override
+  String get alreadyJoinedChallenge => 'Already joined';
+
+  @override
+  String get joinChallenge => 'Join';
+
+  @override
+  String get joinedChallenge => 'Challenge joined';
+
+  @override
+  String get alreadyJoinedSnackbar => 'You have already joined this challenge';
+
+  @override
+  String segments(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count segments',
+      one: '1 segment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get createChallenge => 'Create new challenge';
+
+  @override
+  String get createChallengeSubtitle => 'Choose a start date and add segments. Each segment is automatically assigned to one week.';
+
+  @override
+  String get challengeName => 'Name';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get pleaseEnterChallengeName => 'Please enter a name';
+
+  @override
+  String get selectStartDate => 'Select start date';
+
+  @override
+  String get pleaseSelectStartDate => 'Please select a start date';
+
+  @override
+  String get selectSegments => 'Select segments';
+
+  @override
+  String selectedSegmentCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+      zero: 'None selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get loadNearbySegments => 'Load nearby segments';
+
+  @override
+  String get loadingSegments => 'Loading segments';
+
+  @override
+  String get searchSegment => 'Search segment';
+
+  @override
+  String get noSegmentsLoaded => 'Load segments from your area first.';
+
+  @override
+  String get noMatchingSegmentFound => 'No matching segment found';
+
+  @override
+  String get saveChallenge => 'Save challenge';
+
+  @override
+  String get challengeCreated => 'Challenge created';
+
+  @override
+  String get errorCreatingChallenge => 'Error creating challenge';
+
+  @override
+  String get errorLoadingSegments => 'Error loading segments';
+
+  @override
+  String get pleaseSelectSegments => 'Please select at least one segment';
+
+  @override
+  String get locationPermissionRequired => 'Location permission is required';
+
+  @override
+  String get stravaUserNotFound => 'Strava user was not found';
 }

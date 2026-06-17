@@ -2,21 +2,70 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 import '../widgets/challenge_card.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({
+    super.key,
+  });
+
+  Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _getMyChallenges() {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    final userId = user.uid;
+
+    return FirebaseFirestore.instance
+        .collection('userChallenges')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .asyncMap((userChallengesSnapshot) async {
+      final challengeIds = userChallengesSnapshot.docs
+          .map((doc) => doc.data()['challengeId'] as String?)
+          .whereType<String>()
+          .toList();
+
+      if (challengeIds.isEmpty) {
+        return [];
+      }
+
+      final challengeSnapshot = await FirebaseFirestore.instance
+          .collection('challenges')
+          .where(FieldPath.documentId, whereIn: challengeIds)
+          .get();
+
+      final docs = challengeSnapshot.docs;
+
+      docs.sort((a, b) {
+        final aDate = a.data()['startDate'] as Timestamp?;
+        final bDate = b.data()['startDate'] as Timestamp?;
+
+        if (aDate == null || bDate == null) {
+          return 0;
+        }
+
+        return bDate.compareTo(aDate);
+      });
+
+      return docs;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final locale = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -35,7 +84,7 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             Text(
-              "Ride. Compete. Win.",
+              locale.rideCompeteWin,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface.withOpacity(0.7),
               ),
@@ -48,7 +97,7 @@ class HomeScreen extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Aktuelle Challenges",
+                  locale.myChallenges,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -59,13 +108,10 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // FIREBASE STREAM
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('challenges')
-                    .orderBy('startDate', descending: true)
-                    .snapshots(),
+              child: StreamBuilder<
+                  List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
+                stream: _getMyChallenges(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -75,10 +121,21 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        "Keine Challenges vorhanden",
+                        locale.errorLoadingChallenges,
+                        style: TextStyle(
+                          color: colorScheme.error,
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        locale.noJoinedChallenges,
                         style: TextStyle(
                           color: colorScheme.onSurface.withOpacity(0.7),
                         ),
@@ -86,16 +143,17 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
 
-                  final docs = snapshot.data!.docs;
+                  final docs = snapshot.data!;
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      final data = docs[index].data() as Map<String, dynamic>;
+                      final doc = docs[index];
+                      final data = doc.data();
 
                       return ChallengeCard(
-                        id: data['id'],
+                        id: doc.id,
                         title: data['name'] ?? '',
                         description: data['description'] ?? '',
                         startDate: (data['startDate'] as Timestamp).toDate(),

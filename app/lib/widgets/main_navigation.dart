@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
-import '../screens/leaderboard_screen.dart';
+import '../screens/challenge_search_screen.dart';
 import '../screens/create_screen.dart';
 import '../screens/profile_screen.dart';
 import '../core/theme/app_colors.dart';
@@ -18,7 +18,7 @@ class _MainNavigationState extends State<MainNavigation> {
 
   final screens = const [
     HomeScreen(),
-    LeaderboardScreen(),
+    ChallengeSearchScreen(),
     CreateScreen(),
     ProfileScreen(),
   ];
@@ -62,7 +62,7 @@ class _MainNavigationState extends State<MainNavigation> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.flag), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: ""),
         ],

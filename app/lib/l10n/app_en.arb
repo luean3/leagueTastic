@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-
   "welcomeBack": "Welcome back",
   "createAccount": "Create account",
   "email": "Email",
@@ -19,5 +18,78 @@
   "german": "German",
   "english": "English",
   "connectStrava": "Connect Strava",
-  "logout": "Logout"
+  "logout": "Logout",
+  "my_time": "My time",
+  "attempts": "Attempts",
+  "rank": "Rank",
+  "currentSegment": "Current segment",
+  "noActiveSegment": "No active segment",
+  "week": "Week",
+  "allSegments": "All segments",
+  "active": "Active",
+  "finished": "Finished",
+  "upcoming": "Upcoming",
+  "noEntries": "No entries yet",
+  "point": "point",
+  "myTime": "My time",
+  "segment": "Segment",
+  "segmentId": "Segment ID",
+  "route": "Route",
+  "myResult": "My result",
+  "bestTime": "Best time",
+  "myAttempts": "My attempts",
+  "noSegmentAttempts": "You do not have any attempts for this segment yet.",
+  "segmentLeaderboard": "Segment leaderboard",
+  "noSegmentLeaderboardEntries": "There are no entries for this segment yet.",
+  "anonymous": "Anonymous",
+  "myChallenges": "My Challenges",
+  "rideCompeteWin": "Ride. Compete. Win.",
+  "errorLoadingChallenges": "Error loading challenges",
+  "noJoinedChallenges": "You have not joined any challenges yet",
+  "findChallenges": "Find Challenges",
+  "searchChallenge": "Search challenge",
+  "notLoggedIn": "You are not logged in",
+  "noChallengesAvailable": "No challenges available",
+  "noMatchingChallengeFound": "No matching challenge found",
+  "alreadyJoined": "Joined",
+  "alreadyJoinedChallenge": "Already joined",
+  "joinChallenge": "Join",
+  "joinedChallenge": "Challenge joined",
+  "alreadyJoinedSnackbar": "You have already joined this challenge",
+  "segments": "{count, plural, =1{1 segment} other{{count} segments}}",
+  "@segments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createChallenge": "Create new challenge",
+  "createChallengeSubtitle": "Choose a start date and add segments. Each segment is automatically assigned to one week.",
+  "challengeName": "Name",
+  "description": "Description",
+  "pleaseEnterChallengeName": "Please enter a name",
+  "selectStartDate": "Select start date",
+  "pleaseSelectStartDate": "Please select a start date",
+  "selectSegments": "Select segments",
+  "selectedSegmentCount": "{count, plural, =0{None selected} =1{1 selected} other{{count} selected}}",
+  "@selectedSegmentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadNearbySegments": "Load nearby segments",
+  "loadingSegments": "Loading segments",
+  "searchSegment": "Search segment",
+  "noSegmentsLoaded": "Load segments from your area first.",
+  "noMatchingSegmentFound": "No matching segment found",
+  "saveChallenge": "Save challenge",
+  "challengeCreated": "Challenge created",
+  "errorCreatingChallenge": "Error creating challenge",
+  "errorLoadingSegments": "Error loading segments",
+  "pleaseSelectSegments": "Please select at least one segment",
+  "locationPermissionRequired": "Location permission is required",
+  "stravaUserNotFound": "Strava user was not found"
 }

@@ -62,7 +62,7 @@ class ChallengeCard extends StatelessWidget {
               const SizedBox(height: 6),
 
               Text(
-                "Start: ${startDate.toLocal()}",
+                "Start: ${DateFormat('dd.MM.yyyy HH:mm').format(startDate.toLocal())}",
                 style: TextStyle(
                   color: colorScheme.onSurface.withOpacity(0.6),
                   fontSize: 12,
@@ -70,7 +70,7 @@ class ChallengeCard extends StatelessWidget {
               ),
 
               Text(
-                "Ende: ${endDate.toLocal()}",
+                "Ende: ${DateFormat('dd.MM.yyyy HH:mm').format(startDate.toLocal())}",
                 style: TextStyle(
                   color: colorScheme.onSurface.withOpacity(0.6),
                   fontSize: 12,

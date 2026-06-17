@@ -3,7 +3,6 @@ import '../screens/home_screen.dart';
 import '../screens/challenge_search_screen.dart';
 import '../screens/create_screen.dart';
 import '../screens/profile_screen.dart';
-import '../core/theme/app_colors.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -16,12 +15,18 @@ class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
   final PageController _pageController = PageController();
 
-  final screens = const [
-    HomeScreen(),
-    ChallengeSearchScreen(),
-    CreateScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> screens;
+
+  @override
+  void initState() {
+    super.initState();
+    screens = [
+      HomeScreen(),
+      const ChallengeSearchScreen(),
+      CreateScreen(onChallengeCreated: _openHomeTab),
+      const ProfileScreen(),
+    ];
+  }
 
   @override
   void dispose() {
@@ -36,6 +41,13 @@ class _MainNavigationState extends State<MainNavigation> {
   void onPageChanged(int index) {
     setState(() {
       currentIndex = index;
+    });
+  }
+
+  void _openHomeTab() {
+    _pageController.jumpToPage(0);
+    setState(() {
+      currentIndex = 0;
     });
   }
 

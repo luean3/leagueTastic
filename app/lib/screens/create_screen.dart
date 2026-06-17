@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
@@ -6,12 +5,16 @@ import 'package:leaguetastic/l10n/app_localizations.dart';
 import '../core/theme/app_colors.dart';
 import '../models/explore_segment.dart';
 import '../repositories/segment_repository.dart';
+import '../services/auth_service.dart';
 import '../services/challenge_functions_service.dart';
+import '../widgets/app_header.dart';
 import '../widgets/create_challenge/challenge_form_section.dart';
 import '../widgets/create_challenge/segment_search_section.dart';
-import 'home_screen.dart';
+
 class CreateScreen extends StatefulWidget {
-  const CreateScreen({super.key});
+  final VoidCallback? onChallengeCreated;
+
+  const CreateScreen({super.key, this.onChallengeCreated});
 
   @override
   State<CreateScreen> createState() => _CreateScreenState();
@@ -26,6 +29,7 @@ class _CreateScreenState extends State<CreateScreen> {
 
   final _functionsService = ChallengeFunctionsService();
   final _segmentRepository = SegmentRepository();
+  final _authService = AuthService();
 
   DateTime? _startDate;
 
@@ -108,9 +112,7 @@ class _CreateScreenState extends State<CreateScreen> {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${locale.errorLoadingSegments}: $e"),
-        ),
+        SnackBar(content: Text("${locale.errorLoadingSegments}: $e")),
       );
     } finally {
       if (mounted) {
@@ -141,27 +143,35 @@ class _CreateScreenState extends State<CreateScreen> {
   void _toggleSegment(ExploreSegment segment) {
     setState(() {
       final alreadySelected = _selectedSegments.any(
-            (selected) => selected.id == segment.id,
+        (selected) => selected.id == segment.id,
       );
 
       if (alreadySelected) {
-        _selectedSegments.removeWhere(
-              (selected) => selected.id == segment.id,
-        );
+        _selectedSegments.removeWhere((selected) => selected.id == segment.id);
       } else {
         _selectedSegments.add(segment);
       }
     });
   }
 
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    _nameController.clear();
+    _descriptionController.clear();
+    _segmentSearchController.clear();
+    _startDate = null;
+    _availableSegments = [];
+    _selectedSegments.clear();
+  }
+
   Future<void> _saveChallenge() async {
     final locale = AppLocalizations.of(context)!;
-    final user = FirebaseAuth.instance.currentUser;
+    final user = _authService.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(locale.notLoggedIn)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.notLoggedIn)));
       return;
     }
 
@@ -170,16 +180,16 @@ class _CreateScreenState extends State<CreateScreen> {
     }
 
     if (_startDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(locale.pleaseSelectStartDate)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.pleaseSelectStartDate)));
       return;
     }
 
     if (_selectedSegments.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(locale.pleaseSelectSegments)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.pleaseSelectSegments)));
       return;
     }
 
@@ -197,23 +207,17 @@ class _CreateScreenState extends State<CreateScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(locale.challengeCreated)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.challengeCreated)));
 
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (_) => const HomeScreen(),
-        ),
-            (route) => false,
-      );
+      setState(_resetForm);
+      widget.onChallengeCreated?.call();
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("${locale.errorCreatingChallenge}: $e"),
-        ),
+        SnackBar(content: Text("${locale.errorCreatingChallenge}: $e")),
       );
     } finally {
       if (mounted) {
@@ -235,20 +239,7 @@ class _CreateScreenState extends State<CreateScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: const Text(
-                "LeagueTastic",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            const AppHeader(title: "LeagueTastic"),
 
             Expanded(
               child: Form(
@@ -303,10 +294,10 @@ class _CreateScreenState extends State<CreateScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
-                        disabledBackgroundColor:
-                        colorScheme.onSurface.withOpacity(0.12),
-                        disabledForegroundColor:
-                        colorScheme.onSurface.withOpacity(0.45),
+                        disabledBackgroundColor: colorScheme.onSurface
+                            .withOpacity(0.12),
+                        disabledForegroundColor: colorScheme.onSurface
+                            .withOpacity(0.45),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(25),
@@ -314,13 +305,13 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                       child: _isSaving
                           ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
                           : Text(locale.saveChallenge),
                     ),
                   ],

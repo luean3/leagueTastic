@@ -8,12 +8,6 @@ class DeepLinkService {
       if (uri == null) return;
 
       print("DEEP LINK: $uri");
-
-      if (uri.scheme == "leaguetastic" &&
-          uri.host == "strava-success") {
-        final code = uri.queryParameters["code"];
-
-      }
     });
   }
 }

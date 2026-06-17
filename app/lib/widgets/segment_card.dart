@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/value_parser.dart';
+
 class SegmentCard extends StatelessWidget {
   final Map<String, dynamic> segment;
   final String activeLabel;
@@ -15,12 +17,6 @@ class SegmentCard extends StatelessWidget {
     required this.upcomingLabel,
     this.onTap,
   });
-
-  String s(dynamic v) => v?.toString() ?? '';
-
-  int i(dynamic v) => (v is int) ? v : int.tryParse(v.toString()) ?? 0;
-
-  bool b(dynamic v) => v == true;
 
   Color _statusColor({
     required bool active,
@@ -47,15 +43,11 @@ class SegmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final active = b(segment['isActive']);
-    final past = b(segment['isPast']);
-    final upcoming = b(segment['isUpcoming']);
+    final active = ValueParser.boolean(segment['isActive']);
+    final past = ValueParser.boolean(segment['isPast']);
+    final upcoming = ValueParser.boolean(segment['isUpcoming']);
 
-    final color = _statusColor(
-      active: active,
-      past: past,
-      upcoming: upcoming,
-    );
+    final color = _statusColor(active: active, past: past, upcoming: upcoming);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -66,37 +58,25 @@ class SegmentCard extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text(
-          s(segment['name']),
+          ValueParser.string(segment['name']),
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
           ),
         ),
         subtitle: Text(
-          _statusText(
-            active: active,
-            past: past,
-            upcoming: upcoming,
-          ),
-          style: TextStyle(
-            color: colorScheme.onSurface.withOpacity(0.7),
-          ),
+          _statusText(active: active, past: past, upcoming: upcoming),
+          style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
         ),
         trailing: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 6,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: color,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            "W${i(segment['weekIndex']) + 1}",
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-            ),
+            "W${ValueParser.integer(segment['weekIndex']) + 1}",
+            style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ),
       ),

@@ -1,59 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
+import '../models/challenge_summary.dart';
+import '../repositories/challenge_repository.dart';
+import '../services/auth_service.dart';
+import '../widgets/app_header.dart';
 import '../widgets/challenge_card.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({
+  HomeScreen({
     super.key,
-  });
+    AuthService? authService,
+    ChallengeRepository? challengeRepository,
+  }) : _authService = authService ?? AuthService(),
+       _challengeRepository = challengeRepository ?? ChallengeRepository();
 
-  Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> _getMyChallenges() {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) {
-      return Stream.value([]);
-    }
-
-    final userId = user.uid;
-
-    return FirebaseFirestore.instance
-        .collection('userChallenges')
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .asyncMap((userChallengesSnapshot) async {
-      final challengeIds = userChallengesSnapshot.docs
-          .map((doc) => doc.data()['challengeId'] as String?)
-          .whereType<String>()
-          .toList();
-
-      if (challengeIds.isEmpty) {
-        return [];
-      }
-
-      final challengeSnapshot = await FirebaseFirestore.instance
-          .collection('challenges')
-          .where(FieldPath.documentId, whereIn: challengeIds)
-          .get();
-
-      final docs = challengeSnapshot.docs;
-
-      docs.sort((a, b) {
-        final aDate = a.data()['startDate'] as Timestamp?;
-        final bDate = b.data()['startDate'] as Timestamp?;
-
-        if (aDate == null || bDate == null) {
-          return 0;
-        }
-
-        return bDate.compareTo(aDate);
-      });
-
-      return docs;
-    });
-  }
+  final AuthService _authService;
+  final ChallengeRepository _challengeRepository;
 
   @override
   Widget build(BuildContext context) {
@@ -66,20 +28,7 @@ class HomeScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: const Text(
-                "LeagueTastic",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            const AppHeader(title: "LeagueTastic"),
 
             const SizedBox(height: 20),
 
@@ -109,9 +58,8 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
 
             Expanded(
-              child: StreamBuilder<
-                  List<QueryDocumentSnapshot<Map<String, dynamic>>>>(
-                stream: _getMyChallenges(),
+              child: StreamBuilder<List<ChallengeSummary>>(
+                stream: _watchMyChallenges(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -125,9 +73,7 @@ class HomeScreen extends StatelessWidget {
                     return Center(
                       child: Text(
                         locale.errorLoadingChallenges,
-                        style: TextStyle(
-                          color: colorScheme.error,
-                        ),
+                        style: TextStyle(color: colorScheme.error),
                       ),
                     );
                   }
@@ -149,17 +95,7 @@ class HomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      final doc = docs[index];
-                      final data = doc.data();
-
-                      return ChallengeCard(
-                        id: doc.id,
-                        title: data['name'] ?? '',
-                        description: data['description'] ?? '',
-                        startDate: (data['startDate'] as Timestamp).toDate(),
-                        endDate: (data['endDate'] as Timestamp).toDate(),
-                        segments: (data['segmentIds'] as List?)?.length ?? 0,
-                      );
+                      return ChallengeCard(challenge: docs[index]);
                     },
                   );
                 },
@@ -169,5 +105,15 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Stream<List<ChallengeSummary>> _watchMyChallenges() {
+    final user = _authService.currentUser;
+
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    return _challengeRepository.watchJoinedChallenges(user.uid);
   }
 }

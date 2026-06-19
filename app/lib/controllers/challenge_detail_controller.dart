@@ -31,23 +31,32 @@ class ChallengeDetailController extends ChangeNotifier {
   Future<void> load(String challengeId) async {
     isLoading = true;
     error = null;
+    currentPerformance = null;
     _notifyListeners();
 
     try {
       final loadedState = await _functionsService.getCurrentChallengeState(
         challengeId: challengeId,
       );
-      final user = _authService.currentUser;
-      final performance = user == null
-          ? null
-          : await _segmentResultRepository.getCurrentSegmentPerformance(
-              firebaseUserId: user.uid,
-              challengeId: challengeId,
-              currentSegment: loadedState.currentSegment,
-            );
-
       state = loadedState;
-      currentPerformance = performance;
+      isLoading = false;
+      _notifyListeners();
+
+      // Personal metrics are optional. A missing Firestore index or result must
+      // never hide the challenge segments or block their detail pages.
+      final user = _authService.currentUser;
+      if (user != null) {
+        try {
+          currentPerformance = await _segmentResultRepository
+              .getCurrentSegmentPerformance(
+                firebaseUserId: user.uid,
+                challengeId: challengeId,
+                currentSegment: loadedState.currentSegment,
+              );
+        } catch (exception) {
+          debugPrint('Error loading current segment performance: $exception');
+        }
+      }
     } catch (exception) {
       error = exception;
       debugPrint('Error loading challenge state: $exception');

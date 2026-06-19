@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/create_challenge_controller.dart';
+import '../core/theme/app_colors.dart';
+import '../models/explore_segment.dart';
+import '../widgets/app_header.dart';
+import '../widgets/create_challenge/challenge_form_section.dart';
+import '../widgets/create_challenge/segment_search_section.dart';
+
+/// Seite zum Erstellen einer neuen Challenge aus Strava-Segmenten.
 class CreateScreen extends StatefulWidget {
-  const CreateScreen({super.key});
+  /// Wird nach erfolgreichem Speichern ausgelöst, damit der Parent die
+  /// bestehende Navigation weiterverwenden kann.
+  final VoidCallback? onChallengeCreated;
+
+  const CreateScreen({super.key, this.onChallengeCreated});
 
   @override
   State<CreateScreen> createState() => _CreateScreenState();
@@ -11,175 +23,213 @@ class CreateScreen extends StatefulWidget {
 class _CreateScreenState extends State<CreateScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String name = "";
-  DateTime? startDate;
-  DateTime? endDate;
-  String privacy = "Public";
+  final _nameController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _segmentSearchController = TextEditingController();
 
-  Future<void> pickDateRange() async {
-    final picked = await showDateRangePicker(
+  final CreateChallengeController _controller = CreateChallengeController();
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refresh);
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _segmentSearchController.dispose();
+    _controller.removeListener(_refresh);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _loadNearbySegments() async {
+    final locale = AppLocalizations.of(context)!;
+
+    try {
+      final loaded = await _controller.loadNearbySegments();
+
+      if (!loaded) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(locale.locationPermissionRequired)),
+        );
+        return;
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${locale.errorLoadingSegments}: $e")),
+      );
+    }
+  }
+
+  Future<void> _pickStartDate() async {
+    final now = DateTime.now();
+
+    final picked = await showDatePicker(
       context: context,
-      firstDate: DateTime.now(),
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030),
+      initialDate: _controller.startDate ?? now,
     );
 
     if (picked != null) {
-      setState(() {
-        startDate = picked.start;
-        endDate = picked.end;
-      });
+      _controller.selectStartDate(picked);
     }
   }
 
-  void saveChallenge() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  void _toggleSegment(ExploreSegment segment) {
+    _controller.toggleSegment(segment);
+  }
 
-      print("Name: $name");
-      print("Start: $startDate");
-      print("End: $endDate");
-      print("Privacy: $privacy");
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    _nameController.clear();
+    _descriptionController.clear();
+    _segmentSearchController.clear();
+    _controller.reset();
+  }
 
-      // TODO: Firebase speichern
+  Future<void> _saveChallenge() async {
+    final locale = AppLocalizations.of(context)!;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    try {
+      final result = await _controller.createChallenge(
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+      );
+
+      if (!mounted) return;
+
+      if (result != CreateChallengeResult.created) {
+        final message = switch (result) {
+          CreateChallengeResult.notLoggedIn => locale.notLoggedIn,
+          CreateChallengeResult.startDateMissing =>
+            locale.pleaseSelectStartDate,
+          CreateChallengeResult.segmentsMissing => locale.pleaseSelectSegments,
+          CreateChallengeResult.created => '',
+        };
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        return;
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(locale.challengeCreated)));
+
+      // Kein eigener HomeScreen-Push: Sonst ginge die Bottom-Navigation verloren.
+      _resetForm();
+      widget.onChallengeCreated?.call();
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("${locale.errorCreatingChallenge}: $e")),
+      );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final locale = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary, // Branding ok
-              child: const Text(
-                "LeagueTastic",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            Text(
-              "Neue Challenge erstellen",
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-
-            const SizedBox(height: 20),
+            const AppHeader(title: "LeagueTastic"),
 
             Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30),
-                child: Form(
-                  key: _formKey,
-                  child: ListView(
-                    children: [
-
-                      // NAME
-                      TextFormField(
-                        style: TextStyle(
-                          color: colorScheme.onSurface,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: "Name",
-                          labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
-                            ),
-                          ),
-                        ),
-                        validator: (value) =>
-                        value!.isEmpty ? "Bitte Name eingeben" : null,
-                        onSaved: (value) => name = value!,
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    Text(
+                      locale.createChallenge,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
                       ),
+                    ),
 
-                      const SizedBox(height: 20),
+                    const SizedBox(height: 6),
 
-                      // DATE PICKER
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                        ),
-                        onPressed: pickDateRange,
-                        child: Text(
-                          startDate == null
-                              ? "Zeitraum auswählen"
-                              : "${startDate!.toLocal()} - ${endDate!.toLocal()}",
+                    Text(
+                      locale.createChallengeSubtitle,
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withValues(alpha: 0.65),
+                      ),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    ChallengeFormSection(
+                      nameController: _nameController,
+                      descriptionController: _descriptionController,
+                      startDate: _controller.startDate,
+                      onPickStartDate: _pickStartDate,
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    SegmentSearchSection(
+                      searchController: _segmentSearchController,
+                      availableSegments: _controller.availableSegments,
+                      selectedSegments: _controller.selectedSegments,
+                      isLoading: _controller.isLoadingSegments,
+                      onLoadNearbySegments: _loadNearbySegments,
+                      onSearchChanged: (_) {
+                        setState(() {});
+                      },
+                      onToggleSegment: _toggleSegment,
+                    ),
+
+                    const SizedBox(height: 28),
+
+                    ElevatedButton(
+                      onPressed: _controller.isSaving ? null : _saveChallenge,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: colorScheme.onSurface
+                            .withValues(alpha: 0.12),
+                        disabledForegroundColor: colorScheme.onSurface
+                            .withValues(alpha: 0.45),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-
-                      const SizedBox(height: 20),
-
-                      // PRIVACY
-                      DropdownButtonFormField<String>(
-                        value: privacy,
-                        dropdownColor: theme.cardColor,
-                        style: TextStyle(
-                          color: colorScheme.onSurface,
-                        ),
-                        decoration: InputDecoration(
-                          labelText: "Privatsphäre",
-                          labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
-                            ),
-                          ),
-                        ),
-                        items: const [
-                          DropdownMenuItem(
-                            value: "Public",
-                            child: Text("Public"),
-                          ),
-                          DropdownMenuItem(
-                            value: "Private",
-                            child: Text("Private"),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            privacy = value!;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 40),
-
-                      // SAVE BUTTON
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        onPressed: saveChallenge,
-                        child: const Text("Speichern"),
-                      ),
-                    ],
-                  ),
+                      child: _controller.isSaving
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(locale.saveChallenge),
+                    ),
+                  ],
                 ),
               ),
             ),

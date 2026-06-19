@@ -1,43 +1,37 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../core/theme/app_colors.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
+
+import '../controllers/home_controller.dart';
+import '../models/challenge_summary.dart';
+import '../widgets/app_header.dart';
 import '../widgets/challenge_card.dart';
 
+/// Startseite mit den Challenges, denen der aktuelle User beigetreten ist.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key, HomeController? controller})
+    : _controller = controller ?? HomeController();
+
+  final HomeController _controller;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final locale = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
-            // HEADER
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              color: AppColors.primary,
-              child: const Text(
-                "LeagueTastic",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            const AppHeader(title: "LeagueTastic"),
 
             const SizedBox(height: 20),
 
             Text(
-              "Ride. Compete. Win.",
+              locale.rideCompeteWin,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface.withOpacity(0.7),
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
 
@@ -48,7 +42,7 @@ class HomeScreen extends StatelessWidget {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "Aktuelle Challenges",
+                  locale.myChallenges,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: colorScheme.onSurface,
@@ -59,13 +53,9 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // FIREBASE STREAM
             Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('challenges')
-                    .orderBy('startDate', descending: true)
-                    .snapshots(),
+              child: StreamBuilder<List<ChallengeSummary>>(
+                stream: _controller.watchJoinedChallenges(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -75,33 +65,33 @@ class HomeScreen extends StatelessWidget {
                     );
                   }
 
-                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  if (snapshot.hasError) {
                     return Center(
                       child: Text(
-                        "Keine Challenges vorhanden",
+                        locale.errorLoadingChallenges,
+                        style: TextStyle(color: colorScheme.error),
+                      ),
+                    );
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Text(
+                        locale.noJoinedChallenges,
                         style: TextStyle(
-                          color: colorScheme.onSurface.withOpacity(0.7),
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     );
                   }
 
-                  final docs = snapshot.data!.docs;
+                  final docs = snapshot.data!;
 
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      final data = docs[index].data() as Map<String, dynamic>;
-
-                      return ChallengeCard(
-                        id: data['id'],
-                        title: data['name'] ?? '',
-                        description: data['description'] ?? '',
-                        startDate: (data['startDate'] as Timestamp).toDate(),
-                        endDate: (data['endDate'] as Timestamp).toDate(),
-                        segments: (data['segmentIds'] as List?)?.length ?? 0,
-                      );
+                      return ChallengeCard(challenge: docs[index]);
                     },
                   );
                 },

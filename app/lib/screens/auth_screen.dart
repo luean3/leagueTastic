@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/core/theme/app_colors.dart';
-import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/auth_controller.dart';
+
+/// Login- und Registrierungsformular für Firebase-Auth.
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
 
@@ -12,7 +14,7 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
-  final AuthService _authService = AuthService();
+  final AuthController _controller = AuthController();
 
   bool isLogin = true;
   bool isLoading = false;
@@ -27,21 +29,20 @@ class _AuthScreenState extends State<AuthScreen> {
 
       setState(() => isLoading = true);
 
-      dynamic user;
+      final user = await _controller.authenticate(
+        isLogin: isLogin,
+        email: email,
+        password: password,
+        username: username,
+      );
 
-      if (isLogin) {
-        user = await _authService.loginWithEmail(email, password);
-      } else {
-        user = await _authService.registerWithEmail(email, password, username);
-      }
+      if (!mounted) return;
 
       if (!mounted) return;
 
       setState(() => isLoading = false);
 
-      if (user != null) {
-        print("Erfolg! User: ${user.email}");
-      } else {
+      if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: Colors.redAccent,
@@ -147,11 +148,15 @@ class _AuthScreenState extends State<AuthScreen> {
                           decoration: InputDecoration(
                             labelText: "Benutzername",
                             labelStyle: TextStyle(
-                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color: colorScheme.onSurface.withValues(alpha: 0.2),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.2,
+                                ),
                               ),
                             ),
                           ),
@@ -173,7 +178,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withValues(alpha: 0.2),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.2,
+                              ),
                             ),
                           ),
                         ),
@@ -197,7 +204,9 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withValues(alpha: 0.2),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.2,
+                              ),
                             ),
                           ),
                         ),

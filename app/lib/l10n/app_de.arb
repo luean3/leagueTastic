@@ -1,6 +1,5 @@
 {
   "@@locale": "de",
-
   "welcomeBack": "Willkommen zurück",
   "createAccount": "Neues Konto erstellen",
   "email": "E-Mail",
@@ -19,5 +18,78 @@
   "german": "Deutsch",
   "english": "Englisch",
   "connectStrava": "Strava verbinden",
-  "logout": "Logout"
+  "logout": "Logout",
+  "my_time": "Meine Zeit",
+  "attempts": "Versuche",
+  "rank": "Rang",
+  "currentSegment": "Aktuelles Segment",
+  "noActiveSegment": "Aktuell ist kein Segment aktiv",
+  "week": "Woche",
+  "allSegments": "Alle Segmente",
+  "active": "Aktiv",
+  "finished": "Abgeschlossen",
+  "upcoming": "Bevorstehend",
+  "noEntries": "Noch keine Einträge",
+  "point": "Punkt",
+  "myTime": "Meine Zeit",
+  "segment": "Segment",
+  "segmentId": "Segment-ID",
+  "route": "Route",
+  "myResult": "Mein Resultat",
+  "bestTime": "Bestzeit",
+  "myAttempts": "Meine Versuche",
+  "noSegmentAttempts": "Du hast für dieses Segment noch keinen Versuch.",
+  "segmentLeaderboard": "Segment-Rangliste",
+  "noSegmentLeaderboardEntries": "Für dieses Segment gibt es noch keine Einträge.",
+  "anonymous": "Anonym",
+  "myChallenges": "Meine Challenges",
+  "rideCompeteWin": "Ride. Compete. Win.",
+  "errorLoadingChallenges": "Fehler beim Laden der Challenges",
+  "noJoinedChallenges": "Du bist noch keiner Challenge beigetreten",
+  "findChallenges": "Challenges finden",
+  "searchChallenge": "Challenge suchen",
+  "notLoggedIn": "Du bist nicht eingeloggt",
+  "noChallengesAvailable": "Keine Challenges vorhanden",
+  "noMatchingChallengeFound": "Keine passende Challenge gefunden",
+  "alreadyJoined": "Beigetreten",
+  "alreadyJoinedChallenge": "Bereits beigetreten",
+  "joinChallenge": "Beitreten",
+  "joinedChallenge": "Challenge beigetreten",
+  "alreadyJoinedSnackbar": "Du bist dieser Challenge bereits beigetreten",
+  "segments": "{count, plural, =1{1 Segment} other{{count} Segmente}}",
+  "@segments": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createChallenge": "Neue Challenge erstellen",
+  "createChallengeSubtitle": "Wähle ein Startdatum und füge Segmente hinzu. Jedes Segment wird automatisch einer Woche zugeteilt.",
+  "challengeName": "Name",
+  "description": "Beschreibung",
+  "pleaseEnterChallengeName": "Bitte Name eingeben",
+  "selectStartDate": "Startdatum auswählen",
+  "pleaseSelectStartDate": "Bitte Startdatum auswählen",
+  "selectSegments": "Segmente auswählen",
+  "selectedSegmentCount": "{count, plural, =0{Keine ausgewählt} =1{1 ausgewählt} other{{count} ausgewählt}}",
+  "@selectedSegmentCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadNearbySegments": "Segmente in der Nähe laden",
+  "loadingSegments": "Segmente werden geladen",
+  "searchSegment": "Segment suchen",
+  "noSegmentsLoaded": "Lade zuerst Segmente aus deiner Umgebung.",
+  "noMatchingSegmentFound": "Kein passendes Segment gefunden",
+  "saveChallenge": "Challenge speichern",
+  "challengeCreated": "Challenge wurde erstellt",
+  "errorCreatingChallenge": "Fehler beim Erstellen der Challenge",
+  "errorLoadingSegments": "Fehler beim Laden der Segmente",
+  "pleaseSelectSegments": "Bitte mindestens ein Segment auswählen",
+  "locationPermissionRequired": "Standortberechtigung wird benötigt",
+  "stravaUserNotFound": "Strava-Benutzer wurde nicht gefunden"
 }

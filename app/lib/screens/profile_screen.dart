@@ -4,27 +4,17 @@ import 'package:image_picker/image_picker.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../core/theme/app_colors.dart';
-import '../services/strava_service.dart';
-import '../services/auth_service.dart';
-
+import '../controllers/profile_controller.dart';
 import '../core/providers/theme_provider.dart';
 import '../core/providers/locale_provider.dart';
+import '../widgets/app_header.dart';
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+/// Profil- und Einstellungsseite des angemeldeten Users.
+class ProfileScreen extends StatelessWidget {
+  final ProfileController _controller;
 
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  final AuthService _authService = AuthService();
-  bool _isUploading = false;
-
-  void _connectStrava() {
-    StravaService().connect();
-  }
+  ProfileScreen({super.key, ProfileController? controller})
+    : _controller = controller ?? ProfileController();
 
   Future<void> _pickAndUploadImage() async {
     final ImagePicker picker = ImagePicker();
@@ -66,43 +56,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
 
-    final profile = _authService.getUserProfile();
+    final profile = _controller.profile;
 
     String displayName = locale.guest;
     String? photoUrl;
 
     if (profile != null) {
-      photoUrl = profile['photoURL'];
-      if (profile['displayName'] != null &&
-          profile['displayName'] != "Kein Name gesetzt" &&
-          profile['displayName'].toString().isNotEmpty) {
-        displayName = profile['displayName'];
+      if (profile.displayName != null &&
+          profile.displayName != "Kein Name gesetzt") {
+        displayName = profile.displayName!;
       } else {
-        displayName = profile['email'] ?? locale.guest;
+        displayName = profile.email ?? locale.guest;
       }
     }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // HEADER
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                color: AppColors.primary,
-                child: Text(
-                  locale.profile,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+        child: Column(
+          children: [
+            AppHeader(title: locale.profile),
+
+            const SizedBox(height: 30),
+
+            // AVATAR
+            CircleAvatar(
+              radius: 50,
+              backgroundColor: theme.cardColor,
+              child: Icon(Icons.person, size: 50, color: colorScheme.onSurface),
+            ),
 
               const SizedBox(height: 30),
 
@@ -153,25 +135,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
               const SizedBox(height: 20),
 
-              // NAME
-              Text(
-                displayName,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
+            // LEVEL
+            Text(
+              "${locale.level}: 5",
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
               ),
 
               const SizedBox(height: 10),
 
-              // LEVEL
-              Text(
-                "${locale.level}: 5",
-                style: TextStyle(
-                  color: colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
+            // STATS
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ProfileStat(title: locale.wins, value: "3"),
+                ProfileStat(title: locale.races, value: "12"),
+                ProfileStat(title: locale.points, value: "120"),
+              ],
+            ),
 
               const SizedBox(height: 30),
 
@@ -179,59 +160,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ProfileStat(
-                    title: locale.wins,
-                    value: "3",
-                  ),
-                  ProfileStat(
-                    title: locale.races,
-                    value: "12",
-                  ),
-                  ProfileStat(
-                    title: locale.points,
-                    value: "120",
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 30),
-
-              // SETTINGS
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      locale.settings,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                      ),
+                  Text(
+                    locale.settings,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
                     ),
 
                     const SizedBox(height: 10),
 
-                    // THEME SWITCH
-                    Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, _) {
-                        final isDark = themeProvider.themeMode == ThemeMode.dark;
+                  // THEME SWITCH
+                  Consumer<ThemeProvider>(
+                    builder: (context, themeProvider, _) {
+                      final isDark = themeProvider.themeMode == ThemeMode.dark;
 
-                        return SwitchListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            locale.darkMode,
-                            style: TextStyle(
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          value: isDark,
-                          onChanged: (value) {
-                            themeProvider.toggleTheme(value);
-                          },
-                        );
-                      },
-                    ),
+                      return SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(
+                          locale.darkMode,
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                        value: isDark,
+                        onChanged: (value) {
+                          themeProvider.toggleTheme(value);
+                        },
+                      );
+                    },
+                  ),
+
+                  // LANGUAGE DROPDOWN
+                  Consumer<LocaleProvider>(
+                    builder: (context, localeProvider, _) {
+                      return DropdownButtonFormField<String>(
+                        initialValue: localeProvider.locale.languageCode,
+
+                        decoration: InputDecoration(labelText: locale.language),
 
                     // LANGUAGE DROPDOWN
                     Consumer<LocaleProvider>(
@@ -274,6 +237,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: _connectStrava,
                 child: Text(locale.connectStrava),
               ),
+              onPressed: _controller.connectStrava,
+              child: Text(locale.connectStrava),
+            ),
 
               const SizedBox(height: 20),
 
@@ -288,24 +254,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
                 child: Text(locale.logout),
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+              onPressed: _controller.signOut,
+              child: Text(locale.logout),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
+/// Kleine Profilkennzahl wie Siege, Rennen oder Punkte.
 class ProfileStat extends StatelessWidget {
   final String title;
   final String value;
 
-  const ProfileStat({
-    super.key,
-    required this.title,
-    required this.value,
-  });
+  const ProfileStat({super.key, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -324,9 +288,7 @@ class ProfileStat extends StatelessWidget {
         ),
         Text(
           title,
-          style: TextStyle(
-            color: colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
       ],
     );

@@ -209,27 +209,359 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @my_time.
+  ///
+  /// In en, this message translates to:
+  /// **'My time'**
+  String get my_time;
+
+  /// No description provided for @attempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Attempts'**
+  String get attempts;
+
+  /// No description provided for @rank.
+  ///
+  /// In en, this message translates to:
+  /// **'Rank'**
+  String get rank;
+
   /// No description provided for @currentSegment.
   ///
   /// In en, this message translates to:
-  /// **'Current Segment'**
+  /// **'Current segment'**
   String get currentSegment;
 
+  /// No description provided for @noActiveSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'No active segment'**
   String get noActiveSegment;
 
-  String get allSegments;
-
-  String get active;
-
-  String get finished;
-
-  String get upcoming;
-
-  String get noEntries;
-
+  /// No description provided for @week.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
   String get week;
 
+  /// No description provided for @allSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'All segments'**
+  String get allSegments;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Finished'**
+  String get finished;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcoming;
+
+  /// No description provided for @noEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'No entries yet'**
+  String get noEntries;
+
+  /// No description provided for @point.
+  ///
+  /// In en, this message translates to:
+  /// **'point'**
   String get point;
+
+  /// No description provided for @myTime.
+  ///
+  /// In en, this message translates to:
+  /// **'My time'**
+  String get myTime;
+
+  /// No description provided for @segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment'**
+  String get segment;
+
+  /// No description provided for @segmentId.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment ID'**
+  String get segmentId;
+
+  /// No description provided for @route.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get route;
+
+  /// No description provided for @myResult.
+  ///
+  /// In en, this message translates to:
+  /// **'My result'**
+  String get myResult;
+
+  /// No description provided for @bestTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Best time'**
+  String get bestTime;
+
+  /// No description provided for @myAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'My attempts'**
+  String get myAttempts;
+
+  /// No description provided for @noSegmentAttempts.
+  ///
+  /// In en, this message translates to:
+  /// **'You do not have any attempts for this segment yet.'**
+  String get noSegmentAttempts;
+
+  /// No description provided for @segmentLeaderboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment leaderboard'**
+  String get segmentLeaderboard;
+
+  /// No description provided for @noSegmentLeaderboardEntries.
+  ///
+  /// In en, this message translates to:
+  /// **'There are no entries for this segment yet.'**
+  String get noSegmentLeaderboardEntries;
+
+  /// No description provided for @anonymous.
+  ///
+  /// In en, this message translates to:
+  /// **'Anonymous'**
+  String get anonymous;
+
+  /// No description provided for @myChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'My Challenges'**
+  String get myChallenges;
+
+  /// No description provided for @rideCompeteWin.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride. Compete. Win.'**
+  String get rideCompeteWin;
+
+  /// No description provided for @errorLoadingChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading challenges'**
+  String get errorLoadingChallenges;
+
+  /// No description provided for @noJoinedChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'You have not joined any challenges yet'**
+  String get noJoinedChallenges;
+
+  /// No description provided for @findChallenges.
+  ///
+  /// In en, this message translates to:
+  /// **'Find Challenges'**
+  String get findChallenges;
+
+  /// No description provided for @searchChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Search challenge'**
+  String get searchChallenge;
+
+  /// No description provided for @notLoggedIn.
+  ///
+  /// In en, this message translates to:
+  /// **'You are not logged in'**
+  String get notLoggedIn;
+
+  /// No description provided for @noChallengesAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No challenges available'**
+  String get noChallengesAvailable;
+
+  /// No description provided for @noMatchingChallengeFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching challenge found'**
+  String get noMatchingChallengeFound;
+
+  /// No description provided for @alreadyJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'Joined'**
+  String get alreadyJoined;
+
+  /// No description provided for @alreadyJoinedChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Already joined'**
+  String get alreadyJoinedChallenge;
+
+  /// No description provided for @joinChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Join'**
+  String get joinChallenge;
+
+  /// No description provided for @joinedChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge joined'**
+  String get joinedChallenge;
+
+  /// No description provided for @alreadyJoinedSnackbar.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already joined this challenge'**
+  String get alreadyJoinedSnackbar;
+
+  /// No description provided for @segments.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 segment} other{{count} segments}}'**
+  String segments(int count);
+
+  /// No description provided for @createChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Create new challenge'**
+  String get createChallenge;
+
+  /// No description provided for @createChallengeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a start date and add segments. Each segment is automatically assigned to one week.'**
+  String get createChallengeSubtitle;
+
+  /// No description provided for @challengeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get challengeName;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get description;
+
+  /// No description provided for @pleaseEnterChallengeName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a name'**
+  String get pleaseEnterChallengeName;
+
+  /// No description provided for @selectStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select start date'**
+  String get selectStartDate;
+
+  /// No description provided for @pleaseSelectStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a start date'**
+  String get pleaseSelectStartDate;
+
+  /// No description provided for @selectSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Select segments'**
+  String get selectSegments;
+
+  /// No description provided for @selectedSegmentCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{None selected} =1{1 selected} other{{count} selected}}'**
+  String selectedSegmentCount(int count);
+
+  /// No description provided for @loadNearbySegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Load nearby segments'**
+  String get loadNearbySegments;
+
+  /// No description provided for @loadingSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading segments'**
+  String get loadingSegments;
+
+  /// No description provided for @searchSegment.
+  ///
+  /// In en, this message translates to:
+  /// **'Search segment'**
+  String get searchSegment;
+
+  /// No description provided for @noSegmentsLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Load segments from your area first.'**
+  String get noSegmentsLoaded;
+
+  /// No description provided for @noMatchingSegmentFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching segment found'**
+  String get noMatchingSegmentFound;
+
+  /// No description provided for @saveChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Save challenge'**
+  String get saveChallenge;
+
+  /// No description provided for @challengeCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenge created'**
+  String get challengeCreated;
+
+  /// No description provided for @errorCreatingChallenge.
+  ///
+  /// In en, this message translates to:
+  /// **'Error creating challenge'**
+  String get errorCreatingChallenge;
+
+  /// No description provided for @errorLoadingSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading segments'**
+  String get errorLoadingSegments;
+
+  /// No description provided for @pleaseSelectSegments.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select at least one segment'**
+  String get pleaseSelectSegments;
+
+  /// No description provided for @locationPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Location permission is required'**
+  String get locationPermissionRequired;
+
+  /// No description provided for @stravaUserNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Strava user was not found'**
+  String get stravaUserNotFound;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

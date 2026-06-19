@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../screens/home_screen.dart';
-import '../screens/leaderboard_screen.dart';
+import '../screens/challenge_search_screen.dart';
 import '../screens/create_screen.dart';
 import '../screens/profile_screen.dart';
-import '../core/theme/app_colors.dart';
 
+/// Hosts the four primary areas of the app and keeps the bottom navigation
+/// visible while users switch between them.
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -16,12 +17,20 @@ class _MainNavigationState extends State<MainNavigation> {
   int currentIndex = 0;
   final PageController _pageController = PageController();
 
-  final screens = const [
-    HomeScreen(),
-    LeaderboardScreen(),
-    CreateScreen(),
-    ProfileScreen(),
-  ];
+  late final List<Widget> screens;
+
+  @override
+  void initState() {
+    super.initState();
+    // Die Screens bleiben im PageView, damit Tab-Wechsel und Rücksprünge die
+    // Bottom-Navigation nicht aus dem Widget-Baum entfernen.
+    screens = [
+      HomeScreen(),
+      const ChallengeSearchScreen(),
+      CreateScreen(onChallengeCreated: _openHomeTab),
+      ProfileScreen(),
+    ];
+  }
 
   @override
   void dispose() {
@@ -36,6 +45,13 @@ class _MainNavigationState extends State<MainNavigation> {
   void onPageChanged(int index) {
     setState(() {
       currentIndex = index;
+    });
+  }
+
+  void _openHomeTab() {
+    _pageController.jumpToPage(0);
+    setState(() {
+      currentIndex = 0;
     });
   }
 
@@ -56,13 +72,13 @@ class _MainNavigationState extends State<MainNavigation> {
         currentIndex: currentIndex,
         onTap: onTabTapped,
         selectedItemColor: colorScheme.primary,
-        unselectedItemColor: colorScheme.onSurface.withOpacity(0.5),
+        unselectedItemColor: colorScheme.onSurface.withValues(alpha: 0.5),
         showSelectedLabels: false,
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.flag), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: ""),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: ""),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: ""),
         ],

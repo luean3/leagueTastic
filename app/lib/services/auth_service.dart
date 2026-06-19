@@ -2,139 +2,100 @@ import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
+import '../models/user_profile.dart';
+
+/// Zentrale Kapselung der Firebase-Auth-Zugriffe.
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Stream für Auth-Status Änderungen
+  /// Stream für Login-/Logout-Wechsel.
   Stream<User?> get userStatus => _auth.authStateChanges();
 
-  // Aktueller User
+  /// Aktuell angemeldeter Firebase-User.
   User? get currentUser => _auth.currentUser;
 
-  // Registrierung mit Email, Passwort und username
-  Future<User?> registerWithEmail(String emailAddress, String password, String name) async {
+  /// Erstellt einen Account und setzt direkt den sichtbaren Namen.
+  Future<User?> registerWithEmail(
+    String emailAddress,
+    String password,
+    String name,
+  ) async {
     try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
+      final result = await _auth.createUserWithEmailAndPassword(
         email: emailAddress,
         password: password,
       );
-      
-      final user = result.user;
-      if (user != null) {
-        await user.updateDisplayName(name);
-        await user.reload();
 
-        await _analytics.setUserId(id: user.uid);
-        await _analytics.logSignUp(signUpMethod: 'email');
+      if (result.user != null) {
+        await result.user!.updateDisplayName(name);
+        await result.user!.reload();
       }
-      
+
       return _auth.currentUser;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
-      } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
-      }
+      debugPrint('Registration failed: ${e.code}');
     } catch (e) {
-      print(e);
+      debugPrint('Registration failed: $e');
     }
+
     return null;
   }
 
-  // Login mit Email und Passwort
+  /// Meldet einen bestehenden User mit E-Mail und Passwort an.
   Future<User?> loginWithEmail(String emailAddress, String password) async {
     try {
-      UserCredential result = await _auth.signInWithEmailAndPassword(
-          email: emailAddress,
-          password: password
+      final result = await _auth.signInWithEmailAndPassword(
+        email: emailAddress,
+        password: password,
       );
 
-      final user = result.user;
-      if (user != null) {
-        await _analytics.setUserId(id: user.uid);
-        await _analytics.logLogin(loginMethod: 'email');
-      }
-
-      return user;
+      return result.user;
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
-      }
+      debugPrint('Login failed: ${e.code}');
     }
+
     return null;
   }
 
-  // Logout
+  /// Meldet den aktuellen User ab.
   Future<void> signOut() async {
     await _auth.signOut();
     await _analytics.setUserId(id: null);
   }
 
-  // Methode zum Setzen/Aktualisieren des Display Namens
+  /// Aktualisiert den sichtbaren Anzeigenamen des aktuellen Users.
   Future<void> setDisplayName(String name) async {
     try {
       final user = _auth.currentUser;
+
       if (user != null) {
         await user.updateDisplayName(name);
         await user.reload();
       }
     } catch (e) {
-      print("Fehler beim Aktualisieren des Namens: $e");
+      debugPrint('Failed to update display name: $e');
     }
   }
 
-  // Methode zum Aktualisieren des Profilbildes
-  Future<String?> updateProfilePicture(File imageFile) async {
-    try {
-      final user = _auth.currentUser;
-      if (user == null) return null;
-
-      final storageRef = _storage.ref().child('profile_pictures').child('${user.uid}.jpg');
-      await storageRef.putFile(imageFile);
-      final downloadUrl = await storageRef.getDownloadURL();
-
-      await user.updatePhotoURL(downloadUrl);
-      await user.reload();
-
-      return downloadUrl;
-    } catch (e) {
-      print("Fehler beim Hochladen des Profilbildes: $e");
-      return null;
-    }
-  }
-
-  // Methode zum Zurücksetzen des Passwords
-  Future<bool> resetPassword(String email) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email);
-      return true;
-    } catch (e) {
-      print("Fehler beim Zurücksetzen des Passworts: $e");
-      return false;
-    }
-  }
-
-  // Methode zum Abfragen des User Profils
-  Map<String, dynamic>? getUserProfile() {
+  /// Liefert die Profildaten des aktuellen Users als UI-freundliches Objekt.
+  UserProfile? getUserProfile() {
     final user = _auth.currentUser;
 
-    if (user != null) {
-      return {
-        'uid': user.uid,
-        'email': user.email,
-        'displayName': user.displayName,
-        'photoURL': user.photoURL ?? "",
-        'lastSignIn': user.metadata.lastSignInTime,
-      };
+    if (user == null) {
+      return null;
     }
-    return null;
+
+    return UserProfile(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoUrl: user.photoURL ?? '',
+      lastSignIn: user.metadata.lastSignInTime,
+    );
   }
 }

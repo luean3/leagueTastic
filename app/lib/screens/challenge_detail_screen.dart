@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/challenge_detail_controller.dart';
+import '../models/challenge_state.dart';
+import '../widgets/current_segment_card.dart';
+import '../widgets/leaderboard_entry_tile.dart';
+import '../widgets/segment_card.dart';
+import 'segment_detail_screen.dart';
+
+/// Detailseite einer Challenge mit aktuellem Segment, Segmentplan und Rangliste.
 class ChallengeDetailScreen extends StatefulWidget {
   final String challengeId;
 
@@ -12,52 +19,36 @@ class ChallengeDetailScreen extends StatefulWidget {
 }
 
 class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
-  final functions = FirebaseFunctions.instance;
-
-  bool loading = true;
-
-  Map<String, dynamic>? challenge;
-  Map<String, dynamic>? currentSegment;
-
-  List segments = [];
-  List leaderboard = [];
+  final ChallengeDetailController _controller = ChallengeDetailController();
 
   @override
   void initState() {
     super.initState();
-    loadChallengeState();
+    _controller.addListener(_refresh);
+    _controller.load(widget.challengeId);
   }
 
-  Future<void> loadChallengeState() async {
-    final result = await functions
-        .httpsCallable('getCurrentChallengeState')
-        .call({'challengeId': widget.challengeId});
-
-    final data = Map<String, dynamic>.from(result.data);
-
-    setState(() {
-      challenge = Map<String, dynamic>.from(data['challenge'] ?? {});
-      currentSegment = data['currentSegment'] != null
-          ? Map<String, dynamic>.from(data['currentSegment'])
-          : null;
-
-      segments = (data['segments'] ?? []) as List;
-      leaderboard = (data['leaderboard'] ?? []) as List;
-      loading = false;
-    });
+  void _refresh() {
+    if (mounted) setState(() {});
   }
 
-  String s(dynamic v) => v?.toString() ?? '';
+  @override
+  void dispose() {
+    _controller.removeListener(_refresh);
+    _controller.dispose();
+    super.dispose();
+  }
 
-  int i(dynamic v) => (v is int) ? v : int.tryParse(v.toString()) ?? 0;
-
-  double d(dynamic v) => (v is num) ? v.toDouble() : 0.0;
-
-  Color statusColor(bool active, bool past, bool upcoming) {
-    if (active) return Colors.green;
-    if (past) return Colors.grey;
-    if (upcoming) return Colors.orange;
-    return Colors.blueGrey;
+  void _openSegmentDetail(ChallengeSegment segment) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SegmentDetailScreen(
+          challengeId: widget.challengeId,
+          segment: segment,
+        ),
+      ),
+    );
   }
 
   @override
@@ -66,15 +57,21 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     final locale = AppLocalizations.of(context)!;
+    final state = _controller.state;
+    final challenge = state?.challenge;
+    final currentSegment = state?.currentSegment;
+    final segments = state?.segments ?? const <ChallengeSegment>[];
+    final leaderboard =
+        state?.leaderboard ?? const <ChallengeLeaderboardEntry>[];
 
-    if (loading) {
+    if (_controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(s(challenge?['name'])),
+        title: Text(challenge?.name ?? ''),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,
@@ -82,25 +79,21 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          /// HEADER CARD
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colorScheme.primary.withOpacity(0.12),
+              color: colorScheme.primary.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              s(challenge?['description']),
+              challenge?.description ?? '',
               style: textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 color: colorScheme.onSurface,
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
-          /// CURRENT SEGMENT
           Text(
             locale.currentSegment,
             style: textTheme.titleMedium?.copyWith(
@@ -108,43 +101,21 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               color: colorScheme.primary,
             ),
           ),
-
           const SizedBox(height: 10),
-
           if (currentSegment == null)
             Text(
               locale.noActiveSegment,
-              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             )
           else
-            Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  s(currentSegment!['name']),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                subtitle: Text(
-                  "${locale.week} ${i(currentSegment!['weekIndex']) + 1}",
-                  style: TextStyle(
-                    color: colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-              ),
+            CurrentSegmentCard(
+              segment: currentSegment,
+              performance: _controller.currentPerformance,
+              onTap: () => _openSegmentDetail(currentSegment),
             ),
-
           const SizedBox(height: 20),
-
-          /// SEGMENTS TITLE
           Text(
             locale.allSegments,
             style: textTheme.titleMedium?.copyWith(
@@ -152,63 +123,17 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               color: colorScheme.primary,
             ),
           ),
-
           const SizedBox(height: 10),
-
           ...segments.map((segment) {
-            final map = Map<String, dynamic>.from(segment);
-
-            final active = map['isActive'] ?? false;
-            final past = map['isPast'] ?? false;
-            final upcoming = map['isUpcoming'] ?? false;
-
-            final color = statusColor(active, past, upcoming);
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 10),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                title: Text(
-                  s(map['name']),
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-                subtitle: Text(
-                  active
-                      ? locale.active
-                      : past
-                      ? locale.finished
-                      : locale.upcoming,
-                  style: TextStyle(
-                    color: colorScheme.onSurface.withOpacity(0.7),
-                  ),
-                ),
-                trailing: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    "W${i(map['weekIndex']) + 1}",
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                ),
-              ),
+            return SegmentCard(
+              segment: segment,
+              activeLabel: locale.active,
+              finishedLabel: locale.finished,
+              upcomingLabel: locale.upcoming,
+              onTap: () => _openSegmentDetail(segment),
             );
           }),
-
           const SizedBox(height: 20),
-
-          /// LEADERBOARD
           Text(
             "Leaderboard",
             style: textTheme.titleMedium?.copyWith(
@@ -216,44 +141,27 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               color: colorScheme.primary,
             ),
           ),
-
           const SizedBox(height: 10),
-
           if (leaderboard.isEmpty)
             Text(
               locale.noEntries,
-              style: TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             )
           else
             ...leaderboard.asMap().entries.map((entry) {
               final rank = entry.key + 1;
-              final data = Map<String, dynamic>.from(entry.value);
+              final data = entry.value;
+              final userName = data.userName;
+              final totalPoints = data.totalPoints;
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: colorScheme.primary,
-                    child: Text(
-                      "$rank",
-                      style: TextStyle(color: colorScheme.onPrimary),
-                    ),
-                  ),
-                  title: Text(
-                    s(data['userName']).isNotEmpty ? s(data['userName']) : "Anonymous",
-                    style: TextStyle(color: colorScheme.onSurface),
-                  ),
-                  subtitle: Text(
-                      "${data['totalPoints']?.toInt() ?? 0} ${data['totalPoints'] == 1 ? locale.point : locale.points}",
-                    style: TextStyle(
-                      color: colorScheme.onSurface.withOpacity(0.7),
-                    ),
-                  ),
-                ),
+              return LeaderboardEntryTile(
+                rankText: "$rank",
+                title: userName.isNotEmpty ? userName : "Anonymous",
+                subtitle:
+                    "$totalPoints ${totalPoints == 1 ? locale.point : locale.points}",
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
               );
             }),
         ],

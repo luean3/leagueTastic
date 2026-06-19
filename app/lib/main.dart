@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:leaguetastic/controllers/auth_controller.dart';
 import 'package:leaguetastic/screens/auth_screen.dart';
-import 'package:leaguetastic/services/auth_service.dart';
 import 'package:leaguetastic/services/deep_link_service.dart';
 import 'firebase_options.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,6 +23,7 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// Root der Flutter-App mit Theme, Locale und Auth-Gate.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -32,6 +33,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final DeepLinkService _deepLinkService = DeepLinkService();
+  final AuthController _authController = AuthController();
 
   @override
   void initState() {
@@ -40,6 +42,12 @@ class _MyAppState extends State<MyApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _deepLinkService.init();
     });
+  }
+
+  @override
+  void dispose() {
+    _deepLinkService.dispose();
+    super.dispose();
   }
 
   @override
@@ -54,8 +62,8 @@ class _MyAppState extends State<MyApp> {
           return MaterialApp(
             theme: lightTheme,
             darkTheme: darkTheme,
-            themeMode: context.watch<ThemeProvider>().themeMode,
-            locale: context.watch<LocaleProvider>().locale,
+            themeMode: themeProvider.themeMode,
+            locale: localeProvider.locale,
 
             supportedLocales: const [Locale('de'), Locale('en')],
 
@@ -66,8 +74,7 @@ class _MyAppState extends State<MyApp> {
               GlobalCupertinoLocalizations.delegate,
             ],
 
-            // START SCREEN
-            home: const AuthWrapper(),
+            home: AuthWrapper(controller: _authController),
           );
         },
       ),
@@ -75,15 +82,16 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
+/// Schaltet abhängig vom Firebase-Auth-Status zwischen Login und App-Navigation.
 class AuthWrapper extends StatelessWidget {
-  const AuthWrapper({super.key});
+  final AuthController controller;
+
+  const AuthWrapper({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
-
     return StreamBuilder<User?>(
-      stream: authService.userStatus,
+      stream: controller.userStatus,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

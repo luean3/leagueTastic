@@ -1,8 +1,8 @@
-import {onDocumentCreated} from "firebase-functions/firestore";
+import { onDocumentCreated } from "firebase-functions/firestore";
 import * as admin from "firebase-admin";
-import {refreshAccessToken} from "../services/stravaService";
-import {logger} from "firebase-functions";
-import {STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET} from "../config/strava";
+import { refreshAccessToken } from "../services/stravaService";
+import { logger } from "firebase-functions";
+import { STRAVA_CLIENT_ID, STRAVA_CLIENT_SECRET } from "../config/strava";
 
 export const processActivity = onDocumentCreated(
     {
@@ -12,34 +12,45 @@ export const processActivity = onDocumentCreated(
             STRAVA_CLIENT_SECRET,
         ],
     },
-
     async (event) => {
         const job = event.data?.data();
-        if (!job) return;
-        const {activityId, athleteId} = job;
+
+        if (!job) {
+            return;
+        }
+
+        const { activityId, athleteId } = job;
+
         logger.log({
             message: "started processing job",
             activityId,
             athleteId,
         });
 
+        const db = admin.firestore();
+
         // =========================
-        // USER LOAD
+        // 1. USER LOAD
         // =========================
-        const userSnap = await admin.firestore()
+        const userSnap = await db
             .collection("strava-user")
             .where("athleteId", "==", athleteId)
             .limit(1)
             .get();
 
-        if (userSnap.empty) return;
+        if (userSnap.empty) {
+            logger.log({
+                message: "No user found for athleteId",
+                athleteId,
+            });
+            return;
+        }
 
         const userDoc = userSnap.docs[0];
-
-        let {accessToken, refreshToken} = userDoc.data();
+        let { accessToken, refreshToken } = userDoc.data();
 
         // =========================
-        // STRAVA CALL
+        // 2. STRAVA CALL
         // =========================
         let activityRes = await fetch(
             `https://www.strava.com/api/v3/activities/${activityId}`,
@@ -66,94 +77,112 @@ export const processActivity = onDocumentCreated(
             );
         }
 
-        if (!activityRes.ok) return;
+        if (!activityRes.ok) {
+            logger.log({
+                message: "Failed to load activity from Strava",
+                activityId,
+                status: activityRes.status,
+            });
+            return;
+        }
 
         const activity: any = await activityRes.json();
 
-        const db = admin.firestore();
+        const activityStartDateMs = new Date(activity.start_date).getTime();
+
+        if (Number.isNaN(activityStartDateMs)) {
+            logger.log({
+                message: "Invalid activity start date",
+                activityId,
+                startDate: activity.start_date,
+            });
+            return;
+        }
+
         const batch = db.batch();
 
         // =========================
-        // ACTIVITY
+        // 3. STORE ACTIVITY
         // =========================
-        const activityRef = db.collection("activities").doc(String(activity.id));
+        const activityRef = db
+            .collection("activities")
+            .doc(String(activity.id));
 
-        batch.set(activityRef, {
-            userId: userDoc.id,
-            name: activity.name,
-            distance: activity.distance,
-            startDate: activity.start_date,
-            elapsedTime: activity.elapsed_time
-        });
+        batch.set(
+            activityRef,
+            {
+                userId: userDoc.id,
+                athleteId,
+                activityId: activity.id,
+                name: activity.name,
+                distance: activity.distance,
+                startDate: activity.start_date,
+                startDateMs: activityStartDateMs,
+                elapsedTime: activity.elapsed_time,
+                movingTime: activity.moving_time,
+                type: activity.type,
+                sportType: activity.sport_type,
+                updatedAt: Date.now(),
+            },
+            { merge: true }
+        );
 
         // =========================
-        // SEGMENT EFFORTS
+        // 4. STORE RAW SEGMENT EFFORTS
         // =========================
         const segmentEfforts = activity.segment_efforts ?? [];
 
-        for (const s of segmentEfforts) {
+        logger.log({
+            message: "found segment efforts",
+            activityId,
+            count: segmentEfforts.length,
+        });
 
-            const segmentId = s.segment.id;
-            const newTime = Number(s.elapsed_time);
+        for (const effort of segmentEfforts) {
+            const segmentId = String(effort.segment?.id ?? "");
+            const effortId = String(effort.id ?? "");
+            const elapsedTime = Number(effort.elapsed_time);
 
-            // RAW STORE
+            if (!segmentId || !effortId || Number.isNaN(elapsedTime)) {
+                logger.log({
+                    message: "invalid segment effort",
+                    effort,
+                });
+                continue;
+            }
+
             const rawRef = db
                 .collection("segmentEfforts")
-                .doc(`${activity.id}_${s.id}`);
+                .doc(`${activity.id}_${effortId}`);
 
-            batch.set(rawRef, {
-                userId: userDoc.id,
-                segmentId,
-                activityId: activity.id,
-                elapsedTime: newTime,
-                movingTime: s.moving_time,
-                startDate: activity.start_date,
-                distance: s.distance,
-            });
+            batch.set(
+                rawRef,
+                {
+                    userId: userDoc.id,
+                    athleteId,
+                    activityId: String(activity.id),
+                    effortId,
+                    segmentId,
+                    elapsedTime,
+                    movingTime: effort.moving_time,
+                    distance: effort.distance,
 
-            // =========================
-            // CHALLENGES (NO NESTED QUERIES PER SEGMENT!)
-            // =========================
-            const challengeSnap = await db
-                .collection("challenges")
-                .where("segmentIds", "array-contains", segmentId)
-                .get();
+                    // Important for checking whether the segment was active at that time
+                    activityStartDate: activity.start_date,
+                    activityStartDateMs,
+
+                    createdAt: Date.now(),
+                },
+                { merge: true }
+            );
 
             logger.log({
-                message: "found effort for following segment",
-               segmentId
+                message: "stored raw segment effort",
+                activityId,
+                effortId,
+                segmentId,
+                elapsedTime,
             });
-
-
-            for (const challengeDoc of challengeSnap.docs) {
-
-                const challengeId = challengeDoc.id;
-                const challenge = challengeDoc.data();
-
-                if (challenge.currentSegmentId !== segmentId) continue;
-
-                const effortRef = db
-                    .collection("challenges")
-                    .doc(challengeId)
-                    .collection("leaderboard")
-                    .doc(`${userDoc.id}_${segmentId}`);
-
-                const existing = await effortRef.get();
-
-                const currentBest = existing.exists
-                    ? Number(existing.data()?.elapsedTime ?? Number.MAX_SAFE_INTEGER)
-                    : Number.MAX_SAFE_INTEGER;
-
-                if (newTime < currentBest) {
-                    batch.set(effortRef, {
-                        userId: userDoc.id,
-                        segmentId,
-                        activityId: activity.id,
-                        elapsedTime: newTime,
-                        updatedAt: Date.now(),
-                    }, {merge: true});
-                }
-            }
         }
 
         await batch.commit();

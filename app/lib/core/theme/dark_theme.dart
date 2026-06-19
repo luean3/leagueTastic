@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
+/// Application theme used when the device or user selects dark mode.
 final darkTheme = ThemeData(
   brightness: Brightness.dark,
   useMaterial3: true,

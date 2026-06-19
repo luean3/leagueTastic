@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// Verwaltet die ausgewählte Sprache und speichert sie lokal.
 class LocaleProvider extends ChangeNotifier {
   Locale _locale = const Locale('de');
 

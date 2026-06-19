@@ -3,35 +3,63 @@ import 'package:leaguetastic/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import '../controllers/profile_controller.dart';
-import '../core/providers/theme_provider.dart';
 import '../core/providers/locale_provider.dart';
+import '../core/providers/theme_provider.dart';
 import '../widgets/app_header.dart';
 
-/// Profil- und Einstellungsseite des angemeldeten Users.
-class ProfileScreen extends StatelessWidget {
-  final ProfileController _controller;
+/// Profile and settings page for the signed-in user.
+class ProfileScreen extends StatefulWidget {
+  final ProfileController? controller;
 
-  ProfileScreen({super.key, ProfileController? controller})
-    : _controller = controller ?? ProfileController();
+  const ProfileScreen({super.key, this.controller});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  late final ProfileController _controller =
+      widget.controller ?? ProfileController();
+  bool _isUploading = false;
+
+  Future<void> _selectProfilePicture() async {
+    if (_isUploading) return;
+
+    setState(() => _isUploading = true);
+    final result = await _controller.selectAndUploadProfilePicture();
+
+    if (!mounted) return;
+    setState(() => _isUploading = false);
+
+    switch (result) {
+      case ProfilePictureUpdateResult.updated:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profilbild erfolgreich aktualisiert.')),
+        );
+      case ProfilePictureUpdateResult.failed:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profilbild konnte nicht hochgeladen werden.'),
+          ),
+        );
+      case ProfilePictureUpdateResult.cancelled:
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
-
     final profile = _controller.profile;
+    final profilePhotoUrl = profile?.photoUrl ?? '';
 
-    String displayName = locale.guest;
-
-    if (profile != null) {
-      if (profile.displayName != null &&
-          profile.displayName != "Kein Name gesetzt") {
-        displayName = profile.displayName!;
-      } else {
-        displayName = profile.email ?? locale.guest;
-      }
-    }
+    final displayName =
+        profile?.displayName?.isNotEmpty == true &&
+            profile?.displayName != 'Kein Name gesetzt'
+        ? profile!.displayName!
+        : profile?.email ?? locale.guest;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -39,140 +67,136 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             AppHeader(title: locale.profile),
-
-            const SizedBox(height: 30),
-
-            // AVATAR
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: theme.cardColor,
-              child: Icon(Icons.person, size: 50, color: colorScheme.onSurface),
-            ),
-
-            const SizedBox(height: 20),
-
-            // NAME
-            Text(
-              displayName,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // LEVEL
-            Text(
-              "${locale.level}: 5",
-              style: TextStyle(
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // STATS
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ProfileStat(title: locale.wins, value: "3"),
-                ProfileStat(title: locale.races, value: "12"),
-                ProfileStat(title: locale.points, value: "120"),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            // SETTINGS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    locale.settings,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: colorScheme.onSurface,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  // THEME SWITCH
-                  Consumer<ThemeProvider>(
-                    builder: (context, themeProvider, _) {
-                      final isDark = themeProvider.themeMode == ThemeMode.dark;
-
-                      return SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          locale.darkMode,
-                          style: TextStyle(color: colorScheme.onSurface),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 24),
+                child: Column(
+                  children: [
+                    Stack(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundColor: theme.cardColor,
+                          backgroundImage: profilePhotoUrl.isNotEmpty
+                              ? NetworkImage(profilePhotoUrl)
+                              : null,
+                          child: profilePhotoUrl.isEmpty
+                              ? Icon(
+                                  Icons.person,
+                                  size: 50,
+                                  color: colorScheme.onSurface,
+                                )
+                              : null,
                         ),
-                        value: isDark,
-                        onChanged: (value) {
-                          themeProvider.toggleTheme(value);
-                        },
-                      );
-                    },
-                  ),
-
-                  // LANGUAGE DROPDOWN
-                  Consumer<LocaleProvider>(
-                    builder: (context, localeProvider, _) {
-                      return DropdownButtonFormField<String>(
-                        initialValue: localeProvider.locale.languageCode,
-
-                        decoration: InputDecoration(labelText: locale.language),
-
-                        items: [
-                          DropdownMenuItem(
-                            value: "de",
-                            child: Text(locale.german),
+                        if (_isUploading)
+                          const Positioned.fill(
+                            child: Center(child: CircularProgressIndicator()),
                           ),
-                          DropdownMenuItem(
-                            value: "en",
-                            child: Text(locale.english),
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: IconButton.filled(
+                            tooltip: 'Profilbild ändern',
+                            onPressed: _isUploading
+                                ? null
+                                : _selectProfilePicture,
+                            icon: const Icon(Icons.edit, size: 18),
                           ),
-                        ],
-
-                        onChanged: (value) {
-                          if (value != null) {
-                            localeProvider.setLocale(value);
-                          }
-                        },
-                      );
-                    },
-                  ),
-                ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      displayName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      '${locale.level}: 5',
+                      style: TextStyle(
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        ProfileStat(title: locale.wins, value: '3'),
+                        ProfileStat(title: locale.races, value: '12'),
+                        ProfileStat(title: locale.points, value: '120'),
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        locale.settings,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Consumer<ThemeProvider>(
+                      builder: (context, themeProvider, _) {
+                        return SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            locale.darkMode,
+                            style: TextStyle(color: colorScheme.onSurface),
+                          ),
+                          value: themeProvider.themeMode == ThemeMode.dark,
+                          onChanged: themeProvider.toggleTheme,
+                        );
+                      },
+                    ),
+                    Consumer<LocaleProvider>(
+                      builder: (context, localeProvider, _) {
+                        return DropdownButtonFormField<String>(
+                          initialValue: localeProvider.locale.languageCode,
+                          decoration: InputDecoration(
+                            labelText: locale.language,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'de',
+                              child: Text(locale.german),
+                            ),
+                            DropdownMenuItem(
+                              value: 'en',
+                              child: Text(locale.english),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              localeProvider.setLocale(value);
+                            }
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: _controller.connectStrava,
+                      child: Text(locale.connectStrava),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: _controller.signOut,
+                      child: Text(locale.logout),
+                    ),
+                  ],
+                ),
               ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // STRAVA BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
-              ),
-              onPressed: _controller.connectStrava,
-              child: Text(locale.connectStrava),
-            ),
-
-            const SizedBox(height: 20),
-
-            // LOGOUT BUTTON
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: _controller.signOut,
-              child: Text(locale.logout),
             ),
           ],
         ),
@@ -181,7 +205,7 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-/// Kleine Profilkennzahl wie Siege, Rennen oder Punkte.
+/// Small profile statistic such as wins, races or points.
 class ProfileStat extends StatelessWidget {
   final String title;
   final String value;
@@ -190,8 +214,7 @@ class ProfileStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
@@ -203,7 +226,6 @@ class ProfileStat extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-
         Text(
           title,
           style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),

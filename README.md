@@ -84,7 +84,9 @@ für ein eigenes Firebase-Projekt:
 2. Authentication aktivieren und den Anbieter **E-Mail/Passwort** einschalten.
 3. Eine Firestore-Datenbank anlegen. Die bestehende Konfiguration verwendet die
    Region `eur3`.
-4. Im Projektstamm anmelden und die App-Konfiguration erzeugen:
+4. Firebase Storage aktivieren und Regeln für Profilbilder unter
+   `profile_pictures/{userId}.jpg` konfigurieren.
+5. Im Projektstamm anmelden und die App-Konfiguration erzeugen:
 
 ```bash
 firebase login
@@ -302,7 +304,7 @@ aus. Die App liest nur die daraus entstandenen Firestore-Dokumente.
 | `ChallengeDetailController` | Laedt Challenge-Zustand und persoenliche Leistung gemeinsam. |
 | `SegmentDetailController` | Laedt persoenliche Versuche und die Segment-Rangliste. |
 | `ProfileController` | Stellt Profildaten, Strava-Verbindung und Logout bereit. |
-| `AuthService` | Kapselt Firebase Authentication. |
+| `AuthService` | Kapselt Firebase Authentication, Analytics und Profilbild-Uploads. |
 | `ChallengeFunctionsService` | Kapselt Namen und Payloads der Callable Functions. |
 | `StravaService` | Startet den externen Strava-OAuth-Flow. |
 | `DeepLinkService` | Beobachtet Rueckspruenge ueber das App-URL-Schema. |

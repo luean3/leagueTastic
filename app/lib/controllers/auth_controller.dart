@@ -24,4 +24,9 @@ class AuthController {
     }
     return _authService.registerWithEmail(email, password, username);
   }
+
+  /// Requests a password-reset email for the supplied address.
+  Future<bool> resetPassword(String email) {
+    return _authService.resetPassword(email);
+  }
 }

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 
@@ -6,6 +9,9 @@ import '../models/user_profile.dart';
 /// Zentrale Kapselung der Firebase-Auth-Zugriffe.
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   /// Stream für Login-/Logout-Wechsel.
   Stream<User?> get userStatus => _auth.authStateChanges();
@@ -59,6 +65,7 @@ class AuthService {
   /// Meldet den aktuellen User ab.
   Future<void> signOut() async {
     await _auth.signOut();
+    await _analytics.setUserId(id: null);
   }
 
   /// Aktualisiert den sichtbaren Anzeigenamen des aktuellen Users.

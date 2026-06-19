@@ -26,6 +26,11 @@ dependencies:
   provider: ^6.1.5+1
   shared_preferences: ^2.2.3
   geolocator: ^13.0.4
+  firebase_analytics: ^12.4.2
+  package_info_plus: ^10.1.0
+  firebase_storage: ^13.4.2
+  image_picker: ^1.2.2
+
 
 dev_dependencies:
   flutter_test:

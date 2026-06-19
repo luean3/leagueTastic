@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/challenge_summary.dart';
 
+/// Result of an idempotent challenge membership request.
 enum JoinChallengeResult { joined, alreadyJoined }
 
 /// Kapselt Firestore-Zugriffe rund um Challenges und Mitgliedschaften.

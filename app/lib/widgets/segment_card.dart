@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../utils/value_parser.dart';
+import '../models/challenge_state.dart';
 
 /// Statuskarte für ein Challenge-Segment.
 class SegmentCard extends StatelessWidget {
-  final Map<String, dynamic> segment;
+  final ChallengeSegment segment;
   final String activeLabel;
   final String finishedLabel;
   final String upcomingLabel;
@@ -44,9 +44,9 @@ class SegmentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final active = ValueParser.boolean(segment['isActive']);
-    final past = ValueParser.boolean(segment['isPast']);
-    final upcoming = ValueParser.boolean(segment['isUpcoming']);
+    final active = segment.isActive;
+    final past = segment.isPast;
+    final upcoming = segment.isUpcoming;
 
     final color = _statusColor(active: active, past: past, upcoming: upcoming);
 
@@ -59,7 +59,7 @@ class SegmentCard extends StatelessWidget {
       child: ListTile(
         onTap: onTap,
         title: Text(
-          ValueParser.string(segment['name']),
+          segment.name,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: colorScheme.onSurface,
@@ -76,7 +76,7 @@ class SegmentCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            "W${ValueParser.integer(segment['weekIndex']) + 1}",
+            "W${segment.weekIndex + 1}",
             style: const TextStyle(color: Colors.white, fontSize: 12),
           ),
         ),

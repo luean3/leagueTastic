@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/challenge_search_controller.dart';
 import '../models/challenge_summary.dart';
-import '../repositories/challenge_repository.dart';
-import '../services/auth_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/challenge_search_result_tile.dart';
 import 'challenge_detail_screen.dart';
@@ -18,8 +17,7 @@ class ChallengeSearchScreen extends StatefulWidget {
 
 class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final AuthService _authService = AuthService();
-  final ChallengeRepository _challengeRepository = ChallengeRepository();
+  final ChallengeSearchController _controller = ChallengeSearchController();
 
   String _searchText = "";
 
@@ -34,28 +32,20 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
     required String challengeId,
   }) async {
     final locale = AppLocalizations.of(context)!;
-    final user = _authService.currentUser;
-
-    if (user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(locale.notLoggedIn)));
-      return;
-    }
-
-    final result = await _challengeRepository.joinChallenge(
-      userId: user.uid,
-      challengeId: challengeId,
-    );
+    final result = await _controller.joinChallenge(challengeId);
 
     if (!context.mounted) return;
 
     switch (result) {
-      case JoinChallengeResult.alreadyJoined:
+      case ChallengeJoinOutcome.notLoggedIn:
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(locale.notLoggedIn)));
+      case ChallengeJoinOutcome.alreadyJoined:
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(locale.alreadyJoinedSnackbar)));
-      case JoinChallengeResult.joined:
+      case ChallengeJoinOutcome.joined:
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(locale.joinedChallenge)));
@@ -79,15 +69,16 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
-    final user = _authService.currentUser;
 
-    if (user == null) {
+    if (!_controller.isAuthenticated) {
       return Scaffold(
         backgroundColor: theme.scaffoldBackgroundColor,
         body: Center(
           child: Text(
             locale.notLoggedIn,
-            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ),
       );
@@ -136,7 +127,7 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
             const SizedBox(height: 16),
             Expanded(
               child: StreamBuilder<List<ChallengeSummary>>(
-                stream: _challengeRepository.watchChallenges(),
+                stream: _controller.watchChallenges(),
                 builder: (context, challengeSnapshot) {
                   if (challengeSnapshot.connectionState ==
                       ConnectionState.waiting) {
@@ -187,9 +178,7 @@ class _ChallengeSearchScreenState extends State<ChallengeSearchScreen> {
                   }
 
                   return StreamBuilder<Set<String>>(
-                    stream: _challengeRepository.watchJoinedChallengeIds(
-                      user.uid,
-                    ),
+                    stream: _controller.watchJoinedChallengeIds(),
                     builder: (context, userChallengeSnapshot) {
                       final joinedChallengeIds =
                           userChallengeSnapshot.data ?? <String>{};

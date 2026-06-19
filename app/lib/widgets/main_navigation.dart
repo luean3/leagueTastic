@@ -4,6 +4,8 @@ import '../screens/challenge_search_screen.dart';
 import '../screens/create_screen.dart';
 import '../screens/profile_screen.dart';
 
+/// Hosts the four primary areas of the app and keeps the bottom navigation
+/// visible while users switch between them.
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
 
@@ -26,7 +28,7 @@ class _MainNavigationState extends State<MainNavigation> {
       HomeScreen(),
       const ChallengeSearchScreen(),
       CreateScreen(onChallengeCreated: _openHomeTab),
-      const ProfileScreen(),
+      ProfileScreen(),
     ];
   }
 

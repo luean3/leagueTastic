@@ -36,7 +36,9 @@ class ChallengeSearchResultTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.cardColor,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.08)),
+            border: Border.all(
+              color: colorScheme.onSurface.withValues(alpha: 0.08),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,11 +127,11 @@ class ChallengeSearchResultTile extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: colorScheme.onSurface.withOpacity(
-                      0.12,
+                    disabledBackgroundColor: colorScheme.onSurface.withValues(
+                      alpha: 0.12,
                     ),
-                    disabledForegroundColor: colorScheme.onSurface.withOpacity(
-                      0.45,
+                    disabledForegroundColor: colorScheme.onSurface.withValues(
+                      alpha: 0.45,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),

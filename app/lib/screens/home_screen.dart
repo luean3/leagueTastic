@@ -1,22 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:leaguetastic/l10n/app_localizations.dart';
+
+import '../controllers/home_controller.dart';
 import '../models/challenge_summary.dart';
-import '../repositories/challenge_repository.dart';
-import '../services/auth_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/challenge_card.dart';
-import 'package:leaguetastic/l10n/app_localizations.dart';
 
 /// Startseite mit den Challenges, denen der aktuelle User beigetreten ist.
 class HomeScreen extends StatelessWidget {
-  HomeScreen({
-    super.key,
-    AuthService? authService,
-    ChallengeRepository? challengeRepository,
-  }) : _authService = authService ?? AuthService(),
-       _challengeRepository = challengeRepository ?? ChallengeRepository();
+  HomeScreen({super.key, HomeController? controller})
+    : _controller = controller ?? HomeController();
 
-  final AuthService _authService;
-  final ChallengeRepository _challengeRepository;
+  final HomeController _controller;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +55,7 @@ class HomeScreen extends StatelessWidget {
 
             Expanded(
               child: StreamBuilder<List<ChallengeSummary>>(
-                stream: _watchMyChallenges(),
+                stream: _controller.watchJoinedChallenges(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -106,15 +101,5 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Stream<List<ChallengeSummary>> _watchMyChallenges() {
-    final user = _authService.currentUser;
-
-    if (user == null) {
-      return Stream.value([]);
-    }
-
-    return _challengeRepository.watchJoinedChallenges(user.uid);
   }
 }

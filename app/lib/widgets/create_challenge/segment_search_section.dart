@@ -41,9 +41,9 @@ class SegmentSearchSection extends StatelessWidget {
     final filteredSegments = query.isEmpty
         ? availableSegments
         : availableSegments.where((segment) {
-      return segment.name.toLowerCase().contains(query) ||
-          (segment.city ?? '').toLowerCase().contains(query);
-    }).toList();
+            return segment.name.toLowerCase().contains(query) ||
+                (segment.city ?? '').toLowerCase().contains(query);
+          }).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,13 +81,13 @@ class SegmentSearchSection extends StatelessWidget {
           onPressed: isLoading ? null : onLoadNearbySegments,
           icon: isLoading
               ? SizedBox(
-            width: 18,
-            height: 18,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              color: colorScheme.onPrimary,
-            ),
-          )
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: colorScheme.onPrimary,
+                  ),
+                )
               : const Icon(Icons.explore),
           label: Text(
             isLoading ? locale.loadingSegments : locale.loadNearbySegments,
@@ -110,9 +110,7 @@ class SegmentSearchSection extends StatelessWidget {
             prefixIcon: const Icon(Icons.search),
             filled: true,
             fillColor: theme.cardColor,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
 
@@ -152,7 +150,7 @@ class SegmentSearchSection extends StatelessWidget {
           )
         else
           ...filteredSegments.map(
-                (segment) => SegmentTile(
+            (segment) => SegmentTile(
               segment: segment,
               selected: _isSelected(segment),
               onTap: () => onToggleSegment(segment),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-// Passe den Import an deinen Projektpfad an
+import 'package:leaguetastic/models/challenge_state.dart';
 import 'package:leaguetastic/widgets/segment_card.dart';
 
 void main() {
   Widget createTestWidget({
-    required Map<String, dynamic> segment,
+    required ChallengeSegment segment,
     VoidCallback? onTap,
   }) {
     return MaterialApp(
@@ -22,14 +21,30 @@ void main() {
     );
   }
 
+  ChallengeSegment createSegment({
+    required String name,
+    required int weekIndex,
+    bool isActive = false,
+    bool isPast = false,
+    bool isUpcoming = false,
+  }) {
+    return ChallengeSegment(
+      id: '$weekIndex',
+      name: name,
+      polyline: '',
+      weekIndex: weekIndex,
+      isActive: isActive,
+      isPast: isPast,
+      isUpcoming: isUpcoming,
+    );
+  }
+
   testWidgets('zeigt Segmentname und aktive Statusanzeige an', (tester) async {
-    final segment = {
-      'name': 'Balmberg Segment',
-      'isActive': true,
-      'isPast': false,
-      'isUpcoming': false,
-      'weekIndex': 0,
-    };
+    final segment = createSegment(
+      name: 'Balmberg Segment',
+      weekIndex: 0,
+      isActive: true,
+    );
 
     await tester.pumpWidget(createTestWidget(segment: segment));
 
@@ -39,13 +54,11 @@ void main() {
   });
 
   testWidgets('zeigt abgeschlossenen Status an', (tester) async {
-    final segment = {
-      'name': 'Weissenstein Segment',
-      'isActive': false,
-      'isPast': true,
-      'isUpcoming': false,
-      'weekIndex': 1,
-    };
+    final segment = createSegment(
+      name: 'Weissenstein Segment',
+      weekIndex: 1,
+      isPast: true,
+    );
 
     await tester.pumpWidget(createTestWidget(segment: segment));
 
@@ -55,13 +68,11 @@ void main() {
   });
 
   testWidgets('zeigt bevorstehenden Status an', (tester) async {
-    final segment = {
-      'name': 'Grenchenberg Segment',
-      'isActive': false,
-      'isPast': false,
-      'isUpcoming': true,
-      'weekIndex': 2,
-    };
+    final segment = createSegment(
+      name: 'Grenchenberg Segment',
+      weekIndex: 2,
+      isUpcoming: true,
+    );
 
     await tester.pumpWidget(createTestWidget(segment: segment));
 
@@ -70,16 +81,16 @@ void main() {
     expect(find.text('W3'), findsOneWidget);
   });
 
-  testWidgets('führt onTap aus, wenn auf die Card geklickt wird', (tester) async {
+  testWidgets('führt onTap aus, wenn auf die Card geklickt wird', (
+    tester,
+  ) async {
     var tapped = false;
 
-    final segment = {
-      'name': 'Test Segment',
-      'isActive': true,
-      'isPast': false,
-      'isUpcoming': false,
-      'weekIndex': 0,
-    };
+    final segment = createSegment(
+      name: 'Test Segment',
+      weekIndex: 0,
+      isActive: true,
+    );
 
     await tester.pumpWidget(
       createTestWidget(

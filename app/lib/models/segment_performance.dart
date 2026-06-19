@@ -3,9 +3,9 @@ class SegmentPerformance {
   final String segmentId;
   final int attempts;
   final bool hasResult;
-  final dynamic bestTime;
-  final dynamic rank;
-  final dynamic points;
+  final int? bestTime;
+  final int? rank;
+  final int points;
 
   const SegmentPerformance({
     required this.segmentId,

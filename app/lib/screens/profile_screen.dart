@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../services/strava_service.dart';
-import '../services/auth_service.dart';
-
+import '../controllers/profile_controller.dart';
 import '../core/providers/theme_provider.dart';
 import '../core/providers/locale_provider.dart';
 import '../widgets/app_header.dart';
 
 /// Profil- und Einstellungsseite des angemeldeten Users.
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final ProfileController _controller;
 
-  void _connectStrava() {
-    StravaService().connect();
-  }
+  ProfileScreen({super.key, ProfileController? controller})
+    : _controller = controller ?? ProfileController();
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +20,7 @@ class ProfileScreen extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
 
-    final authService = AuthService();
-    final profile = authService.getUserProfile();
+    final profile = _controller.profile;
 
     String displayName = locale.guest;
 
@@ -42,7 +38,6 @@ class ProfileScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-
             AppHeader(title: locale.profile),
 
             const SizedBox(height: 30),
@@ -51,11 +46,7 @@ class ProfileScreen extends StatelessWidget {
             CircleAvatar(
               radius: 50,
               backgroundColor: theme.cardColor,
-              child: Icon(
-                Icons.person,
-                size: 50,
-                color: colorScheme.onSurface,
-              ),
+              child: Icon(Icons.person, size: 50, color: colorScheme.onSurface),
             ),
 
             const SizedBox(height: 20),
@@ -86,18 +77,9 @@ class ProfileScreen extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ProfileStat(
-                  title: locale.wins,
-                  value: "3",
-                ),
-                ProfileStat(
-                  title: locale.races,
-                  value: "12",
-                ),
-                ProfileStat(
-                  title: locale.points,
-                  value: "120",
-                ),
+                ProfileStat(title: locale.wins, value: "3"),
+                ProfileStat(title: locale.races, value: "12"),
+                ProfileStat(title: locale.points, value: "120"),
               ],
             ),
 
@@ -109,7 +91,6 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     locale.settings,
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -123,16 +104,13 @@ class ProfileScreen extends StatelessWidget {
                   // THEME SWITCH
                   Consumer<ThemeProvider>(
                     builder: (context, themeProvider, _) {
-                      final isDark =
-                          themeProvider.themeMode == ThemeMode.dark;
+                      final isDark = themeProvider.themeMode == ThemeMode.dark;
 
                       return SwitchListTile(
                         contentPadding: EdgeInsets.zero,
                         title: Text(
                           locale.darkMode,
-                          style: TextStyle(
-                            color: colorScheme.onSurface,
-                          ),
+                          style: TextStyle(color: colorScheme.onSurface),
                         ),
                         value: isDark,
                         onChanged: (value) {
@@ -148,9 +126,7 @@ class ProfileScreen extends StatelessWidget {
                       return DropdownButtonFormField<String>(
                         initialValue: localeProvider.locale.languageCode,
 
-                        decoration: InputDecoration(
-                          labelText: locale.language,
-                        ),
+                        decoration: InputDecoration(labelText: locale.language),
 
                         items: [
                           DropdownMenuItem(
@@ -183,7 +159,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
               ),
-              onPressed: _connectStrava,
+              onPressed: _controller.connectStrava,
               child: Text(locale.connectStrava),
             ),
 
@@ -195,9 +171,7 @@ class ProfileScreen extends StatelessWidget {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              onPressed: () {
-                authService.signOut();
-              },
+              onPressed: _controller.signOut,
               child: Text(locale.logout),
             ),
           ],
@@ -212,11 +186,7 @@ class ProfileStat extends StatelessWidget {
   final String title;
   final String value;
 
-  const ProfileStat({
-    super.key,
-    required this.title,
-    required this.value,
-  });
+  const ProfileStat({super.key, required this.title, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -236,9 +206,7 @@ class ProfileStat extends StatelessWidget {
 
         Text(
           title,
-          style: TextStyle(
-            color: colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
       ],
     );

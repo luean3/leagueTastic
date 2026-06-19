@@ -27,14 +27,14 @@ class ExploreSegment {
     );
   }
 
-  static double? _toDouble(dynamic value) {
+  static double? _toDouble(Object? value) {
     if (value == null) return null;
     if (value is double) return value;
     if (value is int) return value.toDouble();
     return double.tryParse(value.toString());
   }
 
-  static int? _toInt(dynamic value) {
+  static int? _toInt(Object? value) {
     if (value == null) return null;
     if (value is int) return value;
     return int.tryParse(value.toString());

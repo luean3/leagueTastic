@@ -6,23 +6,10 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Zeigt die Strava-Route eines Segments auf einer OpenStreetMap-Karte.
-class StravaMapWidget extends StatefulWidget {
+class StravaMapWidget extends StatelessWidget {
   final String encodedPolyline;
 
   const StravaMapWidget({super.key, required this.encodedPolyline});
-
-  @override
-  State<StravaMapWidget> createState() => _StravaMapWidgetState();
-}
-
-class _StravaMapWidgetState extends State<StravaMapWidget> {
-  late final List<LatLng> _routePoints;
-
-  @override
-  void initState() {
-    super.initState();
-    _routePoints = _decodePolyline(widget.encodedPolyline);
-  }
 
   List<LatLng> _decodePolyline(String encodedPolyline) {
     final decodedPoints = PolylinePoints().decodePolyline(encodedPolyline);
@@ -34,11 +21,13 @@ class _StravaMapWidgetState extends State<StravaMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    if (_routePoints.isEmpty) {
+    final routePoints = _decodePolyline(encodedPolyline);
+
+    if (routePoints.isEmpty) {
       return const Center(child: Text("No GPS data for this activity."));
     }
 
-    final bounds = LatLngBounds.fromPoints(_routePoints);
+    final bounds = LatLngBounds.fromPoints(routePoints);
 
     return FlutterMap(
       options: MapOptions(
@@ -62,7 +51,7 @@ class _StravaMapWidgetState extends State<StravaMapWidget> {
         PolylineLayer(
           polylines: [
             Polyline(
-              points: _routePoints,
+              points: routePoints,
               strokeWidth: 4,
               color: Colors.blueAccent,
             ),
@@ -71,7 +60,7 @@ class _StravaMapWidgetState extends State<StravaMapWidget> {
         MarkerLayer(
           markers: [
             Marker(
-              point: _routePoints.first,
+              point: routePoints.first,
               width: 40,
               height: 40,
               child: const Icon(
@@ -81,14 +70,10 @@ class _StravaMapWidgetState extends State<StravaMapWidget> {
               ),
             ),
             Marker(
-              point: _routePoints.last,
+              point: routePoints.last,
               width: 40,
               height: 40,
-              child: const Icon(
-                Icons.flag_circle,
-                color: Colors.red,
-                size: 30,
-              ),
+              child: const Icon(Icons.flag_circle, color: Colors.red, size: 30),
             ),
           ],
         ),

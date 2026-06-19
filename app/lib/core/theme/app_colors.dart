@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 
+/// Shared brand and surface colors used by the light and dark themes.
 class AppColors {
   static const primary = Color(0xFFFF6B00);
 
-  // DARK
+  // Dark theme surfaces.
   static const darkBackground = Color(0xFF1E1E2E);
   static const darkSurface = Color(0xFF2A2A3A);
   static const darkSurfaceSoft = Color(0xFF35354A);
 
-  // LIGHT
+  // Light theme surfaces.
   static const lightBackground = Color(0xFFF7F7FA);
   static const lightSurface = Colors.white;
   static const lightSurfaceSoft = Color(0xFFF0F0F5);
 
-  // TEXT
+  // Text colors.
   static const textDark = Colors.white;
   static const textLight = Color(0xFF1A1A1A);
 

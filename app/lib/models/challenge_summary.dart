@@ -40,7 +40,7 @@ class ChallengeSummary {
         description.toLowerCase().contains(query);
   }
 
-  static DateTime? _toDate(dynamic value) {
+  static DateTime? _toDate(Object? value) {
     if (value is Timestamp) {
       return value.toDate();
     }

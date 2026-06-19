@@ -33,9 +33,7 @@ class ChallengeFormSection extends StatelessWidget {
           controller: nameController,
           decoration: InputDecoration(
             labelText: locale.challengeName,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
@@ -53,9 +51,7 @@ class ChallengeFormSection extends StatelessWidget {
           maxLines: 4,
           decoration: InputDecoration(
             labelText: locale.description,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
           ),
         ),
 

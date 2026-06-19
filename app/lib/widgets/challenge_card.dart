@@ -44,7 +44,9 @@ class ChallengeCard extends StatelessWidget {
 
               Text(
                 challenge.description,
-                style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               ),
 
               const SizedBox(height: 6),

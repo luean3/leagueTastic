@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
-import '../models/segment_performance.dart';
-import '../repositories/segment_result_repository.dart';
-import '../services/auth_service.dart';
-import '../services/challenge_functions_service.dart';
-import '../utils/value_parser.dart';
+import '../controllers/challenge_detail_controller.dart';
+import '../models/challenge_state.dart';
 import '../widgets/current_segment_card.dart';
 import '../widgets/leaderboard_entry_tile.dart';
 import '../widgets/segment_card.dart';
@@ -22,64 +19,27 @@ class ChallengeDetailScreen extends StatefulWidget {
 }
 
 class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
-  final ChallengeFunctionsService _functionsService =
-      ChallengeFunctionsService();
-  final SegmentResultRepository _segmentResultRepository =
-      SegmentResultRepository();
-  final AuthService _authService = AuthService();
-
-  bool loading = true;
-
-  Map<String, dynamic>? challenge;
-  Map<String, dynamic>? currentSegment;
-  SegmentPerformance? myCurrentSegmentResult;
-
-  List<Map<String, dynamic>> segments = [];
-  List<Map<String, dynamic>> leaderboard = [];
+  final ChallengeDetailController _controller = ChallengeDetailController();
 
   @override
   void initState() {
     super.initState();
-    loadChallengeState();
+    _controller.addListener(_refresh);
+    _controller.load(widget.challengeId);
   }
 
-  Future<void> loadChallengeState() async {
-    try {
-      final loadedState = await _functionsService.getCurrentChallengeState(
-        challengeId: widget.challengeId,
-      );
-
-      final user = _authService.currentUser;
-      final loadedMyCurrentSegmentResult = user == null
-          ? null
-          : await _segmentResultRepository.getCurrentSegmentPerformance(
-              firebaseUserId: user.uid,
-              challengeId: widget.challengeId,
-              currentSegment: loadedState.currentSegment,
-            );
-
-      if (!mounted) return;
-
-      setState(() {
-        challenge = loadedState.challenge;
-        currentSegment = loadedState.currentSegment;
-        segments = loadedState.segments;
-        leaderboard = loadedState.leaderboard;
-        myCurrentSegmentResult = loadedMyCurrentSegmentResult;
-        loading = false;
-      });
-    } catch (e) {
-      debugPrint("Error loading challenge state: $e");
-
-      if (!mounted) return;
-
-      setState(() {
-        loading = false;
-      });
-    }
+  void _refresh() {
+    if (mounted) setState(() {});
   }
 
-  void _openSegmentDetail(Map<String, dynamic> segment) {
+  @override
+  void dispose() {
+    _controller.removeListener(_refresh);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _openSegmentDetail(ChallengeSegment segment) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -97,15 +57,21 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     final locale = AppLocalizations.of(context)!;
+    final state = _controller.state;
+    final challenge = state?.challenge;
+    final currentSegment = state?.currentSegment;
+    final segments = state?.segments ?? const <ChallengeSegment>[];
+    final leaderboard =
+        state?.leaderboard ?? const <ChallengeLeaderboardEntry>[];
 
-    if (loading) {
+    if (_controller.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(ValueParser.string(challenge?['name'])),
+        title: Text(challenge?.name ?? ''),
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 0,
@@ -120,7 +86,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Text(
-              ValueParser.string(challenge?['description']),
+              challenge?.description ?? '',
               style: textTheme.bodyMedium?.copyWith(
                 fontSize: 15,
                 color: colorScheme.onSurface,
@@ -139,13 +105,15 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           if (currentSegment == null)
             Text(
               locale.noActiveSegment,
-              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             )
           else
             CurrentSegmentCard(
-              segment: currentSegment!,
-              performance: myCurrentSegmentResult,
-              onTap: () => _openSegmentDetail(currentSegment!),
+              segment: currentSegment,
+              performance: _controller.currentPerformance,
+              onTap: () => _openSegmentDetail(currentSegment),
             ),
           const SizedBox(height: 20),
           Text(
@@ -177,20 +145,22 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
           if (leaderboard.isEmpty)
             Text(
               locale.noEntries,
-              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             )
           else
             ...leaderboard.asMap().entries.map((entry) {
               final rank = entry.key + 1;
               final data = entry.value;
-              final userName = ValueParser.string(data['userName']);
-              final totalPoints = data['totalPoints'];
+              final userName = data.userName;
+              final totalPoints = data.totalPoints;
 
               return LeaderboardEntryTile(
                 rankText: "$rank",
                 title: userName.isNotEmpty ? userName : "Anonymous",
                 subtitle:
-                    "${totalPoints?.toInt() ?? 0} ${totalPoints == 1 ? locale.point : locale.points}",
+                    "$totalPoints ${totalPoints == 1 ? locale.point : locale.points}",
                 backgroundColor: colorScheme.primary.withValues(alpha: 0.12),
               );
             }),

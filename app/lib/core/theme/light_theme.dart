@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
+/// Application theme used when the device or user selects light mode.
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   useMaterial3: true,
@@ -22,11 +23,7 @@ final ThemeData lightTheme = ThemeData(
   ),
 
   textTheme: const TextTheme(
-    bodyLarge: TextStyle(
-      color: AppColors.textLight,
-    ),
-    bodyMedium: TextStyle(
-      color: Colors.black87,
-    ),
+    bodyLarge: TextStyle(color: AppColors.textLight),
+    bodyMedium: TextStyle(color: Colors.black87),
   ),
 );

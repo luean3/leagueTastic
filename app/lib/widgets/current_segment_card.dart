@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../models/challenge_state.dart';
 import '../models/segment_performance.dart';
 import '../utils/app_formatters.dart';
-import '../utils/value_parser.dart';
 import 'common/stat_box.dart';
 
 /// Karte für das aktuell aktive Segment mit den persönlichen Kennzahlen.
 class CurrentSegmentCard extends StatelessWidget {
-  final Map<String, dynamic> segment;
+  final ChallengeSegment segment;
   final SegmentPerformance? performance;
   final VoidCallback onTap;
 
@@ -37,7 +37,7 @@ class CurrentSegmentCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              ValueParser.string(segment['name']),
+              segment.name,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
@@ -46,8 +46,10 @@ class CurrentSegmentCard extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              "${locale.week} ${ValueParser.integer(segment['weekIndex']) + 1}",
-              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+              "${locale.week} ${segment.weekIndex + 1}",
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
             ),
             const SizedBox(height: 14),
             Row(
@@ -56,7 +58,9 @@ class CurrentSegmentCard extends StatelessWidget {
                   child: StatBox(
                     label: locale.my_time,
                     value: AppFormatters.duration(performance?.bestTime),
-                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
+                    backgroundColor: colorScheme.surface.withValues(
+                      alpha: 0.75,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,
@@ -72,7 +76,9 @@ class CurrentSegmentCard extends StatelessWidget {
                   child: StatBox(
                     label: locale.attempts,
                     value: '${performance?.attempts ?? 0}',
-                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
+                    backgroundColor: colorScheme.surface.withValues(
+                      alpha: 0.75,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,
@@ -90,7 +96,9 @@ class CurrentSegmentCard extends StatelessWidget {
                     value: performance?.rank != null
                         ? '#${performance!.rank}'
                         : '-',
-                    backgroundColor: colorScheme.surface.withValues(alpha: 0.75),
+                    backgroundColor: colorScheme.surface.withValues(
+                      alpha: 0.75,
+                    ),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
                       vertical: 10,

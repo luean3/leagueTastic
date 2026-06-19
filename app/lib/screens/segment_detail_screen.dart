@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/segment_detail_controller.dart';
+import '../models/challenge_state.dart';
 import '../models/segment_details.dart';
-import '../repositories/segment_result_repository.dart';
-import '../services/auth_service.dart';
 import '../utils/app_formatters.dart';
-import '../utils/segment_fields.dart';
-import '../utils/value_parser.dart';
 import '../widgets/common/section_title.dart';
 import '../widgets/common/stat_box.dart';
 import '../widgets/leaderboard_entry_tile.dart';
@@ -15,7 +13,7 @@ import '../widgets/map_widget.dart';
 /// Detailseite eines einzelnen Challenge-Segments samt persönlichem Ergebnis.
 class SegmentDetailScreen extends StatefulWidget {
   final String challengeId;
-  final Map<String, dynamic> segment;
+  final ChallengeSegment segment;
 
   const SegmentDetailScreen({
     super.key,
@@ -28,60 +26,29 @@ class SegmentDetailScreen extends StatefulWidget {
 }
 
 class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
-  final AuthService _authService = AuthService();
-  final SegmentResultRepository _segmentResultRepository =
-      SegmentResultRepository();
-
-  bool loading = true;
-  SegmentDetails segmentDetails = const SegmentDetails.empty();
+  final SegmentDetailController _controller = SegmentDetailController();
 
   @override
   void initState() {
     super.initState();
-    loadSegmentDetails();
+    _controller.addListener(_refresh);
+    _controller.load(challengeId: widget.challengeId, segmentId: segmentId);
   }
 
-  String get segmentId => SegmentFields.id(widget.segment);
+  String get segmentId => widget.segment.id;
 
   String get segmentName =>
-      SegmentFields.name(widget.segment, fallback: 'Segment');
+      widget.segment.name.isEmpty ? 'Segment' : widget.segment.name;
 
-  Future<void> loadSegmentDetails() async {
-    try {
-      final user = _authService.currentUser;
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
 
-      if (user == null || segmentId.isEmpty) {
-        if (!mounted) return;
-
-        setState(() {
-          loading = false;
-        });
-
-        return;
-      }
-
-      final loadedSegmentDetails = await _segmentResultRepository
-          .getSegmentDetails(
-            firebaseUserId: user.uid,
-            challengeId: widget.challengeId,
-            segmentId: segmentId,
-          );
-
-      if (!mounted) return;
-
-      setState(() {
-        segmentDetails = loadedSegmentDetails;
-        loading = false;
-      });
-    } catch (e) {
-      debugPrint("Error loading segment details: $e");
-
-      if (!mounted) return;
-
-      setState(() {
-        loading = false;
-      });
-    }
+  @override
+  void dispose() {
+    _controller.removeListener(_refresh);
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -89,11 +56,11 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final locale = AppLocalizations.of(context)!;
-    final polyline = SegmentFields.polyline(widget.segment);
+    final polyline = widget.segment.polyline;
 
-    final myResult = segmentDetails.myResult;
-    final myEfforts = segmentDetails.myEfforts;
-    final leaderboard = segmentDetails.leaderboard;
+    final myResult = _controller.details.myResult;
+    final myEfforts = _controller.details.myEfforts;
+    final leaderboard = _controller.details.leaderboard;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -102,7 +69,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
       ),
-      body: loading
+      body: _controller.isLoading
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.all(16),
@@ -131,15 +98,13 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                           color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
-                      if (widget.segment['weekIndex'] != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          "${locale.week} ${ValueParser.integer(widget.segment['weekIndex']) + 1}",
-                          style: TextStyle(
-                            color: colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${locale.week} ${widget.segment.weekIndex + 1}",
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
-                      ],
+                      ),
                     ],
                   ),
                 ),
@@ -164,15 +129,15 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                     Expanded(
                       child: StatBox(
                         label: locale.bestTime,
-                        value: AppFormatters.duration(myResult?['bestTime']),
+                        value: AppFormatters.duration(myResult?.bestTime),
                       ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: StatBox(
                         label: locale.rank,
-                        value: myResult?['rank'] != null
-                            ? "#${myResult!['rank']}"
+                        value: myResult?.rank != null
+                            ? "#${myResult!.rank}"
                             : "-",
                       ),
                     ),
@@ -180,7 +145,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                     Expanded(
                       child: StatBox(
                         label: locale.points,
-                        value: "${myResult?['points'] ?? 0}",
+                        value: "${myResult?.points ?? 0}",
                       ),
                     ),
                   ],
@@ -209,15 +174,13 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                   )
                 else
                   ...leaderboard.map((entry) {
-                    final rank = ValueParser.integer(entry['rank']);
-                    final points = ValueParser.integer(entry['points']);
-                    final userName = ValueParser.string(entry['userName']);
-                    final displayName = ValueParser.string(
-                      entry['displayName'],
-                    );
+                    final rank = entry.rank;
+                    final points = entry.points;
+                    final userName = entry.userName;
+                    final displayName = entry.displayName;
 
                     return LeaderboardEntryTile(
-                      rankText: rank > 0 ? "$rank" : "-",
+                      rankText: rank != null && rank > 0 ? "$rank" : "-",
                       title: userName.isNotEmpty
                           ? userName
                           : displayName.isNotEmpty
@@ -225,7 +188,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
                           : locale.anonymous,
                       subtitle:
                           "$points ${points == 1 ? locale.point : locale.points}",
-                      trailingText: AppFormatters.duration(entry['bestTime']),
+                      trailingText: AppFormatters.duration(entry.bestTime),
                     );
                   }),
               ],
@@ -235,7 +198,7 @@ class _SegmentDetailScreenState extends State<SegmentDetailScreen> {
 }
 
 class _EffortTile extends StatelessWidget {
-  final Map<String, dynamic> effort;
+  final SegmentEffort effort;
 
   const _EffortTile({required this.effort});
 
@@ -243,22 +206,11 @@ class _EffortTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final activityDate = AppFormatters.parseDate(
-      effort['activityStartDateMs'] ??
-          effort['activityStartDate'] ??
-          effort['createdAt'],
-    );
+    final formattedDate = AppFormatters.shortDate(effort.activityDate);
+    final dateText = formattedDate.isEmpty ? '-' : formattedDate;
 
-    final dateText = activityDate != null
-        ? "${activityDate.day.toString().padLeft(2, '0')}.${activityDate.month.toString().padLeft(2, '0')}.${activityDate.year}"
-        : "-";
-
-    final effortTime =
-        effort['movingTime'] ??
-        effort['elapsedTime'] ??
-        effort['time'] ??
-        effort['bestTime'];
-    final distance = effort['distance'];
+    final effortTime = effort.elapsedTime;
+    final distance = effort.distance;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -281,7 +233,9 @@ class _EffortTile extends StatelessWidget {
         trailing: distance != null
             ? Text(
                 AppFormatters.distance(distance),
-                style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                style: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
               )
             : null,
       ),

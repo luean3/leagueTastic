@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:leaguetastic/l10n/app_localizations.dart';
 
+import '../controllers/create_challenge_controller.dart';
 import '../core/theme/app_colors.dart';
 import '../models/explore_segment.dart';
-import '../repositories/segment_repository.dart';
-import '../services/auth_service.dart';
-import '../services/challenge_functions_service.dart';
 import '../widgets/app_header.dart';
 import '../widgets/create_challenge/challenge_form_section.dart';
 import '../widgets/create_challenge/segment_search_section.dart';
@@ -30,65 +27,35 @@ class _CreateScreenState extends State<CreateScreen> {
   final _descriptionController = TextEditingController();
   final _segmentSearchController = TextEditingController();
 
-  final _functionsService = ChallengeFunctionsService();
-  final _segmentRepository = SegmentRepository();
-  final _authService = AuthService();
+  final CreateChallengeController _controller = CreateChallengeController();
 
-  DateTime? _startDate;
-
-  bool _isLoadingSegments = false;
-  bool _isSaving = false;
-
-  List<ExploreSegment> _availableSegments = [];
-  final List<ExploreSegment> _selectedSegments = [];
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_refresh);
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     _segmentSearchController.dispose();
+    _controller.removeListener(_refresh);
+    _controller.dispose();
     super.dispose();
   }
 
-  Future<bool> _ensureLocationPermission() async {
-    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
-
-    if (!serviceEnabled) {
-      return false;
-    }
-
-    var permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-
-    return permission == LocationPermission.always ||
-        permission == LocationPermission.whileInUse;
-  }
-
-  String _buildBounds(Position position) {
-    const delta = 0.08;
-
-    final southWestLat = position.latitude - delta;
-    final southWestLng = position.longitude - delta;
-    final northEastLat = position.latitude + delta;
-    final northEastLng = position.longitude + delta;
-
-    return "$southWestLat,$southWestLng,$northEastLat,$northEastLng";
+  void _refresh() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadNearbySegments() async {
     final locale = AppLocalizations.of(context)!;
 
-    setState(() {
-      _isLoadingSegments = true;
-    });
-
     try {
-      final hasPermission = await _ensureLocationPermission();
+      final loaded = await _controller.loadNearbySegments();
 
-      if (!hasPermission) {
+      if (!loaded) {
         if (!mounted) return;
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -96,33 +63,12 @@ class _CreateScreenState extends State<CreateScreen> {
         );
         return;
       }
-
-      final position = await Geolocator.getCurrentPosition();
-      final bounds = _buildBounds(position);
-
-      final segmentIds = await _functionsService.exploreSegments(
-        bounds: bounds,
-      );
-
-      final segments = await _segmentRepository.getExploreSegmentsByIds(
-        segmentIds,
-      );
-
-      setState(() {
-        _availableSegments = segments;
-      });
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("${locale.errorLoadingSegments}: $e")),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingSegments = false;
-        });
-      }
     }
   }
 
@@ -133,28 +79,16 @@ class _CreateScreenState extends State<CreateScreen> {
       context: context,
       firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030),
-      initialDate: _startDate ?? now,
+      initialDate: _controller.startDate ?? now,
     );
 
     if (picked != null) {
-      setState(() {
-        _startDate = picked;
-      });
+      _controller.selectStartDate(picked);
     }
   }
 
   void _toggleSegment(ExploreSegment segment) {
-    setState(() {
-      final alreadySelected = _selectedSegments.any(
-        (selected) => selected.id == segment.id,
-      );
-
-      if (alreadySelected) {
-        _selectedSegments.removeWhere((selected) => selected.id == segment.id);
-      } else {
-        _selectedSegments.add(segment);
-      }
-    });
+    _controller.toggleSegment(segment);
   }
 
   void _resetForm() {
@@ -162,60 +96,43 @@ class _CreateScreenState extends State<CreateScreen> {
     _nameController.clear();
     _descriptionController.clear();
     _segmentSearchController.clear();
-    _startDate = null;
-    _availableSegments = [];
-    _selectedSegments.clear();
+    _controller.reset();
   }
 
   Future<void> _saveChallenge() async {
     final locale = AppLocalizations.of(context)!;
-    final user = _authService.currentUser;
-
-    if (user == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(locale.notLoggedIn)));
-      return;
-    }
-
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    if (_startDate == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(locale.pleaseSelectStartDate)));
-      return;
-    }
-
-    if (_selectedSegments.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(locale.pleaseSelectSegments)));
-      return;
-    }
-
-    setState(() {
-      _isSaving = true;
-    });
-
     try {
-      await _functionsService.createChallenge(
+      final result = await _controller.createChallenge(
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        startDate: _startDate!,
-        segmentIds: _selectedSegments.map((segment) => segment.id).toList(),
       );
 
       if (!mounted) return;
+
+      if (result != CreateChallengeResult.created) {
+        final message = switch (result) {
+          CreateChallengeResult.notLoggedIn => locale.notLoggedIn,
+          CreateChallengeResult.startDateMissing =>
+            locale.pleaseSelectStartDate,
+          CreateChallengeResult.segmentsMissing => locale.pleaseSelectSegments,
+          CreateChallengeResult.created => '',
+        };
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(message)));
+        return;
+      }
 
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(locale.challengeCreated)));
 
       // Kein eigener HomeScreen-Push: Sonst ginge die Bottom-Navigation verloren.
-      setState(_resetForm);
+      _resetForm();
       widget.onChallengeCreated?.call();
     } catch (e) {
       if (!mounted) return;
@@ -223,12 +140,6 @@ class _CreateScreenState extends State<CreateScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("${locale.errorCreatingChallenge}: $e")),
       );
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSaving = false;
-        });
-      }
     }
   }
 
@@ -273,7 +184,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     ChallengeFormSection(
                       nameController: _nameController,
                       descriptionController: _descriptionController,
-                      startDate: _startDate,
+                      startDate: _controller.startDate,
                       onPickStartDate: _pickStartDate,
                     ),
 
@@ -281,9 +192,9 @@ class _CreateScreenState extends State<CreateScreen> {
 
                     SegmentSearchSection(
                       searchController: _segmentSearchController,
-                      availableSegments: _availableSegments,
-                      selectedSegments: _selectedSegments,
-                      isLoading: _isLoadingSegments,
+                      availableSegments: _controller.availableSegments,
+                      selectedSegments: _controller.selectedSegments,
+                      isLoading: _controller.isLoadingSegments,
                       onLoadNearbySegments: _loadNearbySegments,
                       onSearchChanged: (_) {
                         setState(() {});
@@ -294,7 +205,7 @@ class _CreateScreenState extends State<CreateScreen> {
                     const SizedBox(height: 28),
 
                     ElevatedButton(
-                      onPressed: _isSaving ? null : _saveChallenge,
+                      onPressed: _controller.isSaving ? null : _saveChallenge,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
@@ -307,7 +218,7 @@ class _CreateScreenState extends State<CreateScreen> {
                           borderRadius: BorderRadius.circular(25),
                         ),
                       ),
-                      child: _isSaving
+                      child: _controller.isSaving
                           ? const SizedBox(
                               width: 22,
                               height: 22,

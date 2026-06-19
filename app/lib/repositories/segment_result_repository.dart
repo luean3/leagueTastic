@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../models/challenge_state.dart';
 import '../models/segment_details.dart';
 import '../models/segment_performance.dart';
-import '../utils/segment_fields.dart';
 import '../utils/value_parser.dart';
 import 'user_repository.dart';
 
@@ -58,24 +58,26 @@ class SegmentResultRepository {
         .limit(50)
         .get();
 
-    final efforts = effortsSnap.docs.map((doc) {
-      return {'id': doc.id, ...doc.data()};
-    }).toList();
+    final efforts = effortsSnap.docs
+        .map((doc) => SegmentEffort.fromMap(doc.data()))
+        .toList();
 
     // Lokal sortieren, damit kein zusätzlicher Firestore-Index nötig ist.
     efforts.sort((a, b) {
-      final aTime = ValueParser.integer(a['activityStartDateMs']);
-      final bTime = ValueParser.integer(b['activityStartDateMs']);
+      final aTime = a.activityDate?.millisecondsSinceEpoch ?? 0;
+      final bTime = b.activityDate?.millisecondsSinceEpoch ?? 0;
       return bTime.compareTo(aTime);
     });
 
-    final leaderboard = leaderboardSnap.docs.map((doc) {
-      return {'id': doc.id, ...doc.data()};
-    }).toList();
+    final leaderboard = leaderboardSnap.docs
+        .map((doc) => SegmentLeaderboardEntry.fromMap(doc.data()))
+        .toList();
 
     return SegmentDetails(
       athleteId: athleteId,
-      myResult: myLeaderboardDoc.data(),
+      myResult: myLeaderboardDoc.data() == null
+          ? null
+          : SegmentResult.fromMap(myLeaderboardDoc.data()!),
       myEfforts: efforts,
       leaderboard: leaderboard,
     );
@@ -84,7 +86,7 @@ class SegmentResultRepository {
   Future<SegmentPerformance?> getCurrentSegmentPerformance({
     required String firebaseUserId,
     required String challengeId,
-    required Map<String, dynamic>? currentSegment,
+    required ChallengeSegment? currentSegment,
   }) async {
     if (currentSegment == null) {
       return null;
@@ -96,7 +98,7 @@ class SegmentResultRepository {
       return null;
     }
 
-    final segmentId = SegmentFields.id(currentSegment);
+    final segmentId = currentSegment.id;
 
     if (segmentId.isEmpty) {
       return null;
@@ -122,9 +124,9 @@ class SegmentResultRepository {
       segmentId: segmentId,
       attempts: effortsSnap.size,
       hasResult: leaderboardDoc.exists,
-      bestTime: leaderboardData?['bestTime'],
-      rank: leaderboardData?['rank'],
-      points: leaderboardData?['points'] ?? 0,
+      bestTime: ValueParser.nullableInteger(leaderboardData?['bestTime']),
+      rank: ValueParser.nullableInteger(leaderboardData?['rank']),
+      points: ValueParser.integer(leaderboardData?['points']),
     );
   }
 }

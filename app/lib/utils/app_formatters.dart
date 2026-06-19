@@ -7,7 +7,7 @@ import 'value_parser.dart';
 class AppFormatters {
   const AppFormatters._();
 
-  static String duration(dynamic value) {
+  static String duration(Object? value) {
     final totalSeconds = ValueParser.integer(value);
 
     if (totalSeconds <= 0) {
@@ -20,7 +20,7 @@ class AppFormatters {
     return "$minutes:${seconds.toString().padLeft(2, '0')}";
   }
 
-  static String distance(dynamic value) {
+  static String distance(Object? value) {
     final distance = ValueParser.decimal(value);
 
     if (distance <= 0) {
@@ -35,7 +35,7 @@ class AppFormatters {
     return '${distance.toStringAsFixed(0)} m';
   }
 
-  static String shortDate(dynamic value) {
+  static String shortDate(Object? value) {
     final date = parseDate(value);
 
     if (date == null) {
@@ -47,7 +47,7 @@ class AppFormatters {
         "${date.year}";
   }
 
-  static DateTime? parseDate(dynamic value) {
+  static DateTime? parseDate(Object? value) {
     if (value == null) return null;
 
     if (value is Timestamp) {

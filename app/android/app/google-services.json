@@ -12,7 +12,20 @@
           "package_name": "ch.ffhs.leaguetastic"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "623072844467-uc1geskd69djlgbotrqinjthqe8jqpqi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ch.ffhs.leaguetastic",
+            "certificate_hash": "d6a08749f0db6a30770497d6ace8ddd8542640d8"
+          }
+        },
+        {
+          "client_id": "623072844467-dti85079bt5eb4db3hlijb0p6s8h04g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCYnMDjC6EbP9qP978pY1Edm2cQKnbHktE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "623072844467-dti85079bt5eb4db3hlijb0p6s8h04g0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "623072844467-o6r6da7otss53h2rm02qmtqh09rhe0o5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ch.ffhs.leaguetastic"
+              }
+            }
+          ]
         }
       }
     }

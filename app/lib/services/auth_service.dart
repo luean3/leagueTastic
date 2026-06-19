@@ -1,7 +1,15 @@
+import 'dart:io';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Stream für Auth-Status Änderungen
   Stream<User?> get userStatus => _auth.authStateChanges();
@@ -17,9 +25,13 @@ class AuthService {
         password: password,
       );
       
-      if (result.user != null) {
-        await result.user!.updateDisplayName(name);
-        await result.user!.reload();
+      final user = result.user;
+      if (user != null) {
+        await user.updateDisplayName(name);
+        await user.reload();
+
+        await _analytics.setUserId(id: user.uid);
+        await _analytics.logSignUp(signUpMethod: 'email');
       }
       
       return _auth.currentUser;
@@ -42,7 +54,14 @@ class AuthService {
           email: emailAddress,
           password: password
       );
-      return result.user;
+
+      final user = result.user;
+      if (user != null) {
+        await _analytics.setUserId(id: user.uid);
+        await _analytics.logLogin(loginMethod: 'email');
+      }
+
+      return user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
@@ -56,6 +75,7 @@ class AuthService {
   // Logout
   Future<void> signOut() async {
     await _auth.signOut();
+    await _analytics.setUserId(id: null);
   }
 
   // Methode zum Setzen/Aktualisieren des Display Namens
@@ -71,6 +91,38 @@ class AuthService {
     }
   }
 
+  // Methode zum Aktualisieren des Profilbildes
+  Future<String?> updateProfilePicture(File imageFile) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return null;
+
+      final storageRef = _storage.ref().child('profile_pictures').child('${user.uid}.jpg');
+      await storageRef.putFile(imageFile);
+      final downloadUrl = await storageRef.getDownloadURL();
+
+      await user.updatePhotoURL(downloadUrl);
+      await user.reload();
+
+      return downloadUrl;
+    } catch (e) {
+      print("Fehler beim Hochladen des Profilbildes: $e");
+      return null;
+    }
+  }
+
+  // Methode zum Zurücksetzen des Passwords
+  Future<bool> resetPassword(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return true;
+    } catch (e) {
+      print("Fehler beim Zurücksetzen des Passworts: $e");
+      return false;
+    }
+  }
+
+  // Methode zum Abfragen des User Profils
   Map<String, dynamic>? getUserProfile() {
     final user = _auth.currentUser;
 

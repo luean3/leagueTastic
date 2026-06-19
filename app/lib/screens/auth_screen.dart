@@ -35,6 +35,8 @@ class _AuthScreenState extends State<AuthScreen> {
         user = await _authService.registerWithEmail(email, password, username);
       }
 
+      if (!mounted) return;
+
       setState(() => isLoading = false);
 
       if (user != null) {
@@ -48,6 +50,42 @@ class _AuthScreenState extends State<AuthScreen> {
                   ? "Login fehlgeschlagen. Daten prüfen."
                   : "Registrierung fehlgeschlagen. E-Mail evtl. schon vergeben.",
             ),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> handleResetPassword() async {
+    _formKey.currentState!.save();
+
+    if (email.isEmpty || !email.contains("@")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Bitte geben Sie eine gültige E-Mail-Adresse ein."),
+          backgroundColor: Colors.orangeAccent,
+        ),
+      );
+      return;
+    }
+
+    setState(() => isLoading = true);
+    bool success = await _authService.resetPassword(email);
+    setState(() => isLoading = false);
+
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Email zum Zurücksetzen des Passworts wurde gesendet."),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Fehler beim Senden der Email. Prüfen Sie die Adresse."),
+            backgroundColor: Colors.redAccent,
           ),
         );
       }
@@ -71,14 +109,14 @@ class _AuthScreenState extends State<AuthScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
-              color: AppColors.primary, // bewusst behalten (Brand Color)
-              child: Text(
+              color: AppColors.primary,
+              child: const Text(
                 "LeagueTastic",
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // OK: Brand Header bleibt fix
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -109,11 +147,11 @@ class _AuthScreenState extends State<AuthScreen> {
                           decoration: InputDecoration(
                             labelText: "Benutzername",
                             labelStyle: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.7),
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                color: colorScheme.onSurface.withOpacity(0.2),
+                                color: colorScheme.onSurface.withValues(alpha: 0.2),
                               ),
                             ),
                           ),
@@ -131,11 +169,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         decoration: InputDecoration(
                           labelText: "E-Mail",
                           labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
+                              color: colorScheme.onSurface.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -155,11 +193,11 @@ class _AuthScreenState extends State<AuthScreen> {
                         decoration: InputDecoration(
                           labelText: "Passwort",
                           labelStyle: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                              color: colorScheme.onSurface.withOpacity(0.2),
+                              color: colorScheme.onSurface.withValues(alpha: 0.2),
                             ),
                           ),
                         ),
@@ -169,7 +207,16 @@ class _AuthScreenState extends State<AuthScreen> {
                         onSaved: (value) => password = value!,
                       ),
 
-                      const SizedBox(height: 40),
+                      if (isLogin)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: handleResetPassword,
+                            child: const Text("Passwort vergessen?"),
+                          ),
+                        ),
+
+                      const SizedBox(height: 20),
 
                       // BUTTON / LOADING
                       if (isLoading)
@@ -206,7 +253,7 @@ class _AuthScreenState extends State<AuthScreen> {
                               ? "Noch kein Konto? Jetzt registrieren"
                               : "Bereits ein Konto? Hier einloggen",
                           style: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.7),
+                            color: colorScheme.onSurface.withValues(alpha: 0.7),
                           ),
                         ),
                       ),

@@ -91,5 +91,6 @@
   "errorLoadingSegments": "Fehler beim Laden der Segmente",
   "pleaseSelectSegments": "Bitte mindestens ein Segment auswählen",
   "locationPermissionRequired": "Standortberechtigung wird benötigt",
-  "stravaUserNotFound": "Strava-Benutzer wurde nicht gefunden"
+  "stravaUserNotFound": "Strava-Benutzer wurde nicht gefunden",
+  "connected": "Mit Strava verbunden"
 }

@@ -258,4 +258,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get stravaUserNotFound => 'Strava-Benutzer wurde nicht gefunden';
+
+  @override
+  String get connected => 'Mit Strava verbunden';
 }

@@ -240,6 +240,17 @@ async function updateLeaderboardForChallenge(params: {
     }
 
     const now = Date.now();
+    const userSnap = await db
+        .collection("users")
+        .where("stravaId", "==", userId)
+        .limit(1)
+        .get();
+
+    let userName = "Unbekannt";
+
+    if (!userSnap.empty) {
+        userName = userSnap.docs[0].data().username ?? "Unbekannt";
+    }
 
     await segmentEntryRef.set(
         {
@@ -248,6 +259,7 @@ async function updateLeaderboardForChallenge(params: {
             challengeId,
             bestTime: elapsedTime,
             updatedAt: now,
+            userName
         },
         { merge: true }
     );
@@ -286,6 +298,19 @@ async function updateLeaderboardForChallenge(params: {
             continue;
         }
 
+        const entryUserSnap = await db
+            .collection("users")
+            .where("stravaId", "==", entryUserId)
+            .limit(1)
+            .get();
+
+        let entryUserName = "Unbekannt";
+
+        if (!entryUserSnap.empty) {
+            entryUserName =
+                entryUserSnap.docs[0].data().username ?? "Unbekannt";
+        }
+
         if (previousTime !== null && bestTime === previousTime) {
             // same rank
         } else {
@@ -303,6 +328,7 @@ async function updateLeaderboardForChallenge(params: {
             rank: currentRank,
             points: newPoints,
             updatedAt: now,
+            userName: entryUserName
         });
 
         const challengeEntryRef = db
@@ -318,6 +344,7 @@ async function updateLeaderboardForChallenge(params: {
                 challengeId,
                 totalPoints: admin.firestore.FieldValue.increment(pointDifference),
                 updatedAt: now,
+                userName: entryUserName
             },
             { merge: true }
         );

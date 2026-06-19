@@ -91,5 +91,6 @@
   "errorLoadingSegments": "Error loading segments",
   "pleaseSelectSegments": "Please select at least one segment",
   "locationPermissionRequired": "Location permission is required",
-  "stravaUserNotFound": "Strava user was not found"
+  "stravaUserNotFound": "Strava user was not found",
+  "connected": "Connected"
 }

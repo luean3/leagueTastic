@@ -181,9 +181,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       },
                     ),
                     const SizedBox(height: 30),
-                    ElevatedButton(
-                      onPressed: _controller.connectStrava,
-                      child: Text(locale.connectStrava),
+                    StreamBuilder<bool>(
+                      stream: _controller.stravaConnectionStream,
+                      initialData: false,
+                      builder: (context, snapshot) {
+                        final isConnected = snapshot.data ?? false;
+
+                        if (snapshot.hasError) {
+                          return ElevatedButton.icon(
+                            onPressed: _controller.connectStrava,
+                            icon: const Icon(Icons.link),
+                            label: Text(locale.connectStrava),
+                          );
+                        }
+
+                        return ElevatedButton.icon(
+                          onPressed: isConnected ? null : _controller.connectStrava,
+                          icon: Icon(
+                            isConnected ? Icons.check_circle : Icons.link,
+                          ),
+                          label: Text(
+                            isConnected
+                                ? locale.connected
+                                : locale.connectStrava,
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(

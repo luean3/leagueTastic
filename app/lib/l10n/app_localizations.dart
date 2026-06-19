@@ -562,6 +562,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Strava user was not found'**
   String get stravaUserNotFound;
+
+  /// No description provided for @connected.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected'**
+  String get connected;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

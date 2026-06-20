@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../models/challenge_state.dart';
 
@@ -7,6 +8,7 @@ import '../models/challenge_state.dart';
 /// So bleiben Funktionsnamen und Payload-Formate an einer zentralen Stelle.
 class ChallengeFunctionsService {
   final FirebaseFunctions _functions;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   ChallengeFunctionsService({FirebaseFunctions? functions})
     : _functions = functions ?? FirebaseFunctions.instance;
@@ -27,8 +29,19 @@ class ChallengeFunctionsService {
     });
 
     final data = Map<String, dynamic>.from(result.data as Map);
+    final challengeId = data['challengeId'].toString();
 
-    return data['challengeId'].toString();
+    // Log Analytics Event
+    await _analytics.logEvent(
+      name: 'create_challenge',
+      parameters: {
+        'challenge_id': challengeId,
+        'challenge_name': name,
+        'segments_count': segmentIds.length,
+      },
+    );
+
+    return challengeId;
   }
 
   Future<List<String>> exploreSegments({required String bounds}) async {

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../models/challenge_summary.dart';
 
@@ -11,6 +12,7 @@ enum JoinChallengeResult { joined, alreadyJoined }
 /// Collection-Namen oder Join-Regeln kennen müssen.
 class ChallengeRepository {
   final FirebaseFirestore _firestore;
+  final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
 
   ChallengeRepository({FirebaseFirestore? firestore})
     : _firestore = firestore ?? FirebaseFirestore.instance;
@@ -100,6 +102,15 @@ class ChallengeRepository {
       'challengeId': challengeId,
       'joinedAt': FieldValue.serverTimestamp(),
     });
+
+    // Log Analytics Event
+    await _analytics.logEvent(
+      name: 'join_challenge',
+      parameters: {
+        'challenge_id': challengeId,
+        'user_id': userId,
+      },
+    );
 
     return JoinChallengeResult.joined;
   }

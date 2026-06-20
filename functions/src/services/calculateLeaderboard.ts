@@ -12,14 +12,29 @@ export const onSegmentEffortCreated = onDocumentCreated(
             return;
         }
 
-        const { segmentId, userId, elapsedTime } = data;
+        const { segmentId, userId, movingTime } = data;
+        const db = admin.firestore();
 
-        if (!segmentId || !userId || typeof elapsedTime !== "number") {
+        const stravaUser = await db
+            .collection("strava-user")
+            .where("athleteId", "==", Number(userId))
+            .limit(1)
+            .get();
+
+        if (stravaUser.empty) {
+            console.log("Kein Strava-User gefunden:", userId);
+            return;
+        }
+
+        const firebaseId = stravaUser.docs[0].data().userId;
+
+        console.log("Firebase User ID:", firebaseId);
+
+        if (!segmentId || !userId || typeof movingTime !== "number") {
             console.log("Invalid segment effort payload:", data);
             return;
         }
 
-        const db = admin.firestore();
 
         const activityTime = getActivityTime(data);
 
@@ -30,12 +45,11 @@ export const onSegmentEffortCreated = onDocumentCreated(
 
         const userChallengesSnap = await db
             .collection("userChallenges")
-            .where("userId", "==", userId)
-            .where("active", "==", true)
+            .where("userId", "==", firebaseId)
             .get();
 
         if (userChallengesSnap.empty) {
-            console.log("No active challenge for user:", userId);
+            console.log("No active challenge for user:", firebaseId);
             return;
         }
 
@@ -95,7 +109,7 @@ export const onSegmentEffortCreated = onDocumentCreated(
                 challengeId,
                 segmentId,
                 userId,
-                elapsedTime,
+                movingTime,
             });
 
             processedChallengeIds.push(challengeId);
@@ -219,9 +233,9 @@ async function updateLeaderboardForChallenge(params: {
     challengeId: string;
     segmentId: string;
     userId: string;
-    elapsedTime: number;
+    movingTime: number;
 }): Promise<boolean> {
-    const { db, challengeId, segmentId, userId, elapsedTime } = params;
+    const { db, challengeId, segmentId, userId, movingTime } = params;
 
     const segmentEntryRef = db
         .collection("segmentLeaderboards")
@@ -235,7 +249,7 @@ async function updateLeaderboardForChallenge(params: {
         ? Number(segmentEntrySnap.data()?.bestTime ?? Number.MAX_SAFE_INTEGER)
         : Number.MAX_SAFE_INTEGER;
 
-    if (elapsedTime >= currentBest) {
+    if (movingTime >= currentBest) {
         return false;
     }
 
@@ -249,7 +263,7 @@ async function updateLeaderboardForChallenge(params: {
     let userName = "Unbekannt";
 
     if (!userSnap.empty) {
-        userName = userSnap.docs[0].data().username ?? "Unbekannt";
+        userName = userSnap.docs[0].data().displayName ?? "Unbekannt";
     }
 
     await segmentEntryRef.set(
@@ -257,7 +271,7 @@ async function updateLeaderboardForChallenge(params: {
             userId,
             segmentId,
             challengeId,
-            bestTime: elapsedTime,
+            bestTime: movingTime,
             updatedAt: now,
             userName
         },
@@ -300,7 +314,7 @@ async function updateLeaderboardForChallenge(params: {
 
         const entryUserSnap = await db
             .collection("users")
-            .where("stravaId", "==", entryUserId)
+            .where("stravaId", "==", String(entryUserId))
             .limit(1)
             .get();
 
@@ -308,7 +322,7 @@ async function updateLeaderboardForChallenge(params: {
 
         if (!entryUserSnap.empty) {
             entryUserName =
-                entryUserSnap.docs[0].data().username ?? "Unbekannt";
+                entryUserSnap.docs[0].data().displayName ?? "Unbekannt";
         }
 
         if (previousTime !== null && bestTime === previousTime) {

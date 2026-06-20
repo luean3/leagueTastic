@@ -114,22 +114,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 10),
-                    Text(
-                      '${locale.level}: 5',
-                      style: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        ProfileStat(title: locale.wins, value: '3'),
-                        ProfileStat(title: locale.races, value: '12'),
-                        ProfileStat(title: locale.points, value: '120'),
-                      ],
-                    ),
                     const SizedBox(height: 30),
                     Align(
                       alignment: Alignment.centerLeft,
